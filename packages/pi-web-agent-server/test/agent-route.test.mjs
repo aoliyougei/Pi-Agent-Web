@@ -123,6 +123,32 @@ test("routes set_tools through the adapter and marks rejected prompts", async (t
   assert.deepEqual(sent.map(({ command }) => command.type), ["set_tools", "prompt"]);
 });
 
+test("deduplicates matching side-effect requests by request id", async (t) => {
+  const agent = fakeAgent();
+  let calls = 0;
+  agent.send = async () => {
+    calls += 1;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    return { found: true, data: { call: calls } };
+  };
+  const { app, url } = await startServer(agent);
+  t.after(() => app.close());
+  const init = {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-request-id": "dedup-1" },
+    body: JSON.stringify({ type: "abort" }),
+  };
+
+  const [first, second] = await Promise.all([
+    body(await request(url, "/internal/v1/api/agent/known", init)),
+    body(await request(url, "/internal/v1/api/agent/known", init)),
+  ]);
+
+  assert.deepEqual(first, { status: 200, body: { success: true, data: { call: 1 } } });
+  assert.deepEqual(second, first);
+  assert.equal(calls, 1);
+});
+
 test("rejects malformed requests before opening or invoking a Runtime", async (t) => {
   const agent = fakeAgent();
   let opens = 0;

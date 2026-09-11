@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import {
   agentError,
@@ -8,6 +9,7 @@ import {
   type AgentErrorCode,
   type NewAgentRequest,
 } from "@aoliyougei/pi-agent-contract";
+import { RequestDeduplicator } from "../runtime/request-dedup.js";
 
 export interface AgentRouteRuntime {
   send(command: AgentCommand): Promise<unknown>;
@@ -33,7 +35,7 @@ function send(response: ServerResponse, status: number, body: unknown): void {
   response.end(JSON.stringify(body));
 }
 
-async function readJson(request: IncomingMessage): Promise<unknown> {
+async function readJson(request: IncomingMessage): Promise<{ value: unknown; bytes: Buffer }> {
   if (request.headers["content-type"]?.split(";", 1)[0].trim().toLowerCase() !== "application/json") {
     throw Object.assign(new Error("Content-Type must be application/json"), { status: 415 });
   }
@@ -47,8 +49,9 @@ async function readJson(request: IncomingMessage): Promise<unknown> {
     if (size > MAX_JSON_BYTES) throw Object.assign(new Error("Request too large"), { status: 413 });
     chunks.push(buffer);
   }
+  const bytes = Buffer.concat(chunks);
   try {
-    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    return { value: JSON.parse(bytes.toString("utf8")), bytes };
   } catch {
     throw Object.assign(new Error("Invalid JSON"), { status: 400 });
   }
@@ -67,8 +70,8 @@ function fail(response: ServerResponse, error: unknown, requestId: string): void
     send(response, status, agentError(errorCode, error instanceof Error ? error.message : "Invalid request", requestId));
     return;
   }
-  if (code === "session_locked") {
-    send(response, 409, agentError("session_locked", "Session is locked", requestId));
+  if (code === "session_locked" || code === "request_id_conflict") {
+    send(response, 409, agentError(code, error instanceof Error ? error.message : "Conflict", requestId));
     return;
   }
   send(response, 500, agentError("internal_error", "Internal error", requestId));
@@ -80,6 +83,7 @@ export async function routeAgentRequest(
   path: string,
   requestId: string,
   agent: AgentRouteAdapter,
+  dedup: RequestDeduplicator,
 ): Promise<boolean> {
   const prefix = "/internal/v1/api/agent/";
   if (!path.startsWith(prefix)) return false;
@@ -92,26 +96,36 @@ export async function routeAgentRequest(
 
   if (request.method === "POST" && suffix === "new") {
     let parsed: NewAgentRequest;
+    let bytes: Buffer;
     try {
-      parsed = parseNewAgentRequest(await readJson(request));
+      const body = await readJson(request);
+      parsed = parseNewAgentRequest(body.value);
+      bytes = body.bytes;
     } catch (error) {
       fail(response, invalid(error), requestId);
       return true;
     }
     try {
-      const created = await agent.create(parsed);
-      const state = await created.runtime.send({ type: "get_state" }) as {
-        model?: { id: string; provider: string };
-        thinkingLevel?: string;
+      const operation = async () => {
+        const created = await agent.create(parsed);
+        const state = await created.runtime.send({ type: "get_state" }) as {
+          model?: { id: string; provider: string };
+          thinkingLevel?: string;
+        };
+        const data = parsed.command.type === "ensure_session" ? null : await created.runtime.send(parsed.command);
+        return {
+          success: true,
+          sessionId: created.id,
+          data,
+          model: state.model ? { provider: state.model.provider, modelId: state.model.id } : null,
+          thinkingLevel: state.thinkingLevel,
+        };
       };
-      const data = parsed.command.type === "ensure_session" ? null : await created.runtime.send(parsed.command);
-      send(response, 200, {
-        success: true,
-        sessionId: created.id,
-        data,
-        model: state.model ? { provider: state.model.provider, modelId: state.model.id } : null,
-        thinkingLevel: state.thinkingLevel,
-      });
+      const body = requestId === "unknown" ? await operation() : await dedup.run({
+        id: requestId,
+        fingerprint: createHash("sha256").update(request.method ?? "POST").update(path).update(bytes).digest("hex"),
+      }, operation);
+      send(response, 200, body);
     } catch (error) {
       fail(response, error, requestId);
     }
@@ -132,8 +146,13 @@ export async function routeAgentRequest(
 
   if (request.method !== "GET" && request.method !== "POST") return false;
   let command: AgentCommand;
+  let bytes: Buffer | undefined;
   try {
-    command = request.method === "POST" ? parseAgentCommand(await readJson(request)) : { type: "get_state" };
+    if (request.method === "POST") {
+      const body = await readJson(request);
+      command = parseAgentCommand(body.value);
+      bytes = body.bytes;
+    } else command = { type: "get_state" };
   } catch (error) {
     fail(response, invalid(error), requestId);
     return true;
@@ -148,14 +167,20 @@ export async function routeAgentRequest(
       send(response, 200, { running: true, state: await runtime.send(command) });
       return true;
     }
-    const result = await agent.send(id, command);
+    const operation = () => agent.send(id, command);
+    const result = requestId === "unknown" ? await operation() : await dedup.run({
+      id: requestId,
+      fingerprint: createHash("sha256").update(request.method).update(path).update(bytes!).digest("hex"),
+    }, operation);
     if (!result.found) {
       send(response, 404, agentError("session_not_found", "Session not found", requestId));
       return true;
     }
     send(response, 200, { success: true, data: result.data });
   } catch (error) {
-    if (command.type === "prompt") {
+    if (typeof error === "object" && error && "code" in error && error.code === "request_id_conflict") {
+      fail(response, error, requestId);
+    } else if (command.type === "prompt") {
       send(response, 500, {
         ...agentError("prompt_rejected", error instanceof Error ? error.message : String(error), requestId),
         accepted: false,
