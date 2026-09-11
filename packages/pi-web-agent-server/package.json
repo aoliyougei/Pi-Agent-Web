@@ -1,0 +1,31 @@
+{
+  "name": "@aoliyougei/pi-web-agent-server",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "pi-agent-rpc": "dist/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": "./dist/server.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@aoliyougei/pi-agent-contract": "0.1.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "0.84.4"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^25",
+    "typescript": "^5"
+  }
+}
