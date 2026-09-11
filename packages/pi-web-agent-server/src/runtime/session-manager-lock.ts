@@ -30,7 +30,7 @@ export function installSessionManagerLocks(
     throw new Error("Unsupported Pi SessionManager version or class");
   }
   const prototype = managerClass.prototype as unknown as Record<string, Method>;
-  const names = ["_setSessionFile", "newSession", "_appendEntry", "_rewriteFile", "_persist"] as const;
+  const names = ["_setSessionFile", "newSession", "createBranchedSession", "_appendEntry", "_rewriteFile", "_persist"] as const;
   const originals = new Map(names.map((name) => [name, prototype[name]]));
   for (const name of names) {
     if (typeof prototype[name] !== "function") throw new Error(`Unsupported SessionManager boundary: ${name}`);
@@ -90,6 +90,22 @@ export function installSessionManagerLocks(
       return result;
     } catch (error) { restore(); throw error; }
   };
+  prototype.createBranchedSession = function (...args) {
+    const restore = snapshot(this);
+    const previous = this.isPersisted() ? this.getSessionFile() : undefined;
+    // Retain source across _rewriteFile's target adoption, including write failures.
+    const sourceKey = previous ? retain(previous) : undefined;
+    try {
+      const result = originals.get("createBranchedSession")!.apply(this, args);
+      const file = this.getSessionFile();
+      if (this.isPersisted() && file && managers.get(this) !== canonicalSessionPath(file)) adopt(this, retain(file));
+      return result;
+    } catch (error) {
+      restore();
+      if (sourceKey) adopt(this, retain(sourceKey));
+      throw error;
+    } finally { if (sourceKey) drop(sourceKey); }
+  };
   for (const name of ["_appendEntry", "_rewriteFile", "_persist"] as const) {
     prototype[name] = function (...args) {
       const file = this.getSessionFile();
@@ -103,6 +119,11 @@ export function installSessionManagerLocks(
   installed.add(managerClass);
   return {
     release,
+    reserveFile(file: string) {
+      const key = retain(file);
+      let released = false;
+      return () => { if (!released) { released = true; drop(key); } };
+    },
     async withManagerScope<T>(operation: () => Promise<T>, keep: () => Manager): Promise<T> {
       const created = new Set<Manager>();
       return acquisitions.run(created, async () => {
