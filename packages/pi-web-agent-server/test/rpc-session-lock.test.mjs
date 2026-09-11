@@ -42,6 +42,12 @@ test("real CLI ownership produces HTTP 409; RPC owns the same file after CLI exi
   const response = await fetch(`http://127.0.0.1:${app.address().port}/internal/v1/api/agent/${id}`, { headers: { authorization: "Bearer test" } });
   assert.equal(response.status, 409);
   assert.equal((await response.json()).error.code, "session_locked");
+  const tools = await fetch(`http://127.0.0.1:${app.address().port}/internal/v1/api/agent/${id}`, { method: "POST", headers: { authorization: "Bearer test", "content-type": "application/json" }, body: JSON.stringify({ type: "set_tools", toolNames: [] }) });
+  assert.equal(tools.status, 409);
+  assert.equal((await tools.json()).error.code, "session_locked");
+  const prompt = await fetch(`http://127.0.0.1:${app.address().port}/internal/v1/api/agent/${id}`, { method: "POST", headers: { authorization: "Bearer test", "content-type": "application/json" }, body: JSON.stringify({ type: "prompt", message: "must not run" }) });
+  assert.equal(prompt.status, 409);
+  assert.equal((await prompt.json()).error.code, "session_locked");
   for (const suffix of ["events", "extension-ui/pending"]) {
     const conflict = await fetch(`http://127.0.0.1:${app.address().port}/internal/v1/api/agent/${id}/${suffix}`, { headers: { authorization: "Bearer test", "x-request-id": "conflict-check" } });
     assert.equal(conflict.status, 409);

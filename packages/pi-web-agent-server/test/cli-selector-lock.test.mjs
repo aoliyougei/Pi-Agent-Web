@@ -1,0 +1,31 @@
+import assert from "node:assert/strict";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { SessionSelectorComponent, SessionManager } from "@earendil-works/pi-coding-agent";
+import { acquireSessionLock } from "../dist/runtime/session-lock.js";
+import { installSessionManagerLocks } from "../dist/runtime/session-manager-lock.js";
+
+test("selector deletion rejects a busy session before invoking trash/unlink and rename releases transient manager", async (t) => {
+  const { guardSessionSelector } = await import("../dist/runtime/cli-selector-lock.js");
+  const dir = mkdtempSync(join(tmpdir(), "selector-lock-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const locks = join(dir, "locks"), file = join(dir, "session.jsonl");
+  writeFileSync(file, JSON.stringify({ type: "session", version: 3, id: "test", cwd: dir, timestamp: new Date().toISOString() }) + "\n");
+  const guard = installSessionManagerLocks(SessionManager, { directory: locks, owner: "cli", piVersion: "0.84.4" });
+  t.after(() => guard.uninstall());
+  const selector = Object.create(SessionSelectorComponent.prototype);
+  let deleted = false;
+  selector.sessionList = { onDeleteSession: async () => { deleted = true; } };
+  selector.renameSession = async (path) => { SessionManager.open(path).appendSessionInfo("renamed"); };
+  guardSessionSelector(selector, guard, locks);
+  const held = acquireSessionLock(file, locks, "rpc");
+  await assert.rejects(selector.sessionList.onDeleteSession(file), { code: "session_locked" });
+  assert.equal(deleted, false);
+  held.release();
+  await selector.renameSession(file);
+  acquireSessionLock(file, locks, "rpc").release();
+  await selector.sessionList.onDeleteSession(file);
+  assert.equal(deleted, true);
+});

@@ -178,7 +178,7 @@ export async function routeAgentRequest(
     }
     send(response, 200, { success: true, data: result.data });
   } catch (error) {
-    if (typeof error === "object" && error && "code" in error && error.code === "request_id_conflict") {
+    if (typeof error === "object" && error && "code" in error && (error.code === "request_id_conflict" || error.code === "session_locked")) {
       fail(response, error, requestId);
     } else if (command.type === "prompt") {
       send(response, 500, {

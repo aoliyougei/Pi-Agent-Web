@@ -1,41 +1,52 @@
-# CLI Session locking: pre-write boundary review
+# Task 8 — Session locks and supported CLI entrypoint
 
-Task 8 is not implementation-ready with a shell wrapper plus an ordinary extension alone.
+## Status
 
-Reviewed upstream Pi 0.84.4 (source remains unchanged):
+Implemented and acceptance-tested on Linux with Pi 0.84.4. This closes Phase 2 Task 8, not Phase 2 or the overall container split.
 
-- `packages/coding-agent/src/main.ts`: initial session selection calls `SessionManager.open`, `continueRecent`, or `create` before runtime extension binding. `--resume` selects a path interactively inside Pi.
-- `packages/coding-agent/src/core/session-manager.ts`, `_setSessionFile`: opening an empty file initializes and rewrites it; opening an older session may migrate and rewrite it. Locking at `session_start` is too late even when no prompt has been sent.
-- `packages/coding-agent/src/core/agent-session-runtime.ts`: subsequent `switchSession` and JSONL import have a cancellable `session_before_switch` hook before target writes. Fork/new-session flows also create target state internally.
-- `packages/coding-agent/src/core/extensions/runner.ts`, `emit`: extension exceptions are caught and emitted as errors. A thrown lock conflict is not a fail-closed cancellation; handlers must return `cancel: true` where supported.
+## Approved adjustment
 
-Consequences:
+A shell startup lock or ordinary Extension hook alone cannot protect interactive session selection, migration-on-open, or later `/resume` and import. The user approved a mandatory version-bound preload maintained in Agent Server, outside upstream Pi. Exceptions in Extension handlers are not a reliable fail-closed boundary.
 
-1. A startup-only shell `flock` cannot protect interactive target selection or subsequent target switches.
-2. A session-start extension cannot guarantee pre-write exclusion for the initial open.
-3. A process-global CLI lock would violate the requirement that distinct Sessions can run concurrently.
-4. Rejecting resume/continue/TUI switching would violate feature parity.
+The standard container entrypoint is now:
 
-Design options reviewed (user subsequently approved the preload/interception option):
+```
+/usr/local/bin/pi                     # shell wrapper
+/usr/local/libexec/pi-real            # symlink to original dist/cli.js
+node --import <server>/dist/runtime/cli-preload.js /usr/local/libexec/pi-real ...
+```
 
-- Host the CLI/TUI through a maintained SDK adapter that owns initial selection and every writable session transition; verify behavioral parity with upstream CLI before claiming supported coverage. This is more than a thin shell wrapper.
-- Alternatively permit a mandatory process preload/interception adapter, outside the upstream source tree, that guards actual SessionManager write/open boundaries. This preserves upstream files but changes runtime behavior and introduces version-specific interception that must be explicitly approved and comprehensively tested.
+Important image finding: upstream's default executable points to `dist/bundle/cli.js`, which embeds a different SessionManager instance. Preloading SDK hooks cannot guard that bundle. The wrapper must run upstream's unmodified modular `dist/cli.js`. The bundle remains available internally. NODE_OPTIONS is not used, so tools do not inherit the preload.
 
-## Implementation checkpoint
+## Implemented boundaries
 
-The user approved proceeding with the mandatory preload/interception adapter. Do not ask again for this same design decision.
+- `fs-ext@2.1.1`, nonblocking kernel flock, SHA-256 of canonical Session path, existing-ancestor/symlink normalization for files not yet created. Metadata is informative only; no stale-lock deletion. Kernel exit/SIGKILL cleanup.
+- CLI open/continue/new/switch, branch/fork, import, shutdown, and failed transitions. Import holds the destination through async confirmation and rejects concurrent same-target imports. Source/target branch ownership transfers without a write-before-lock gap.
+- Selector deletion acquires an independent lease before trash/unlink and displays conflicts; rename releases transient managers. Read-only `SessionManager.list` does not require a write lease.
+- RPC existing/new startup, inactive `set_tools`, fork/clone destinations, Subagent startup and final metadata lifetime. Prompt/state/SSE/pending-UI lock conflicts return `409 session_locked`.
+- RPC shutdown rejects new commands, cancels dialogs/active work, waits for outstanding mutations/prompts, then disposes before unlocking. A stuck operation retains its lease until it settles or the process exits; force-unlocking an active writer is unsafe.
+- Empty RPC forks are persisted under the target lease so their IDs remain reopenable.
+- Runtime-builder explicitly compiles native fs-ext using the image's Node headers. Build dependencies stay in the builder stage.
 
-- [x] Shared OS lease primitive: exact `fs-ext@2.1.1`, canonical path hashing, nonblocking kernel flock, metadata without stale-file deletion, idempotent release.
-- [x] Real Node child-process and shell flock interoperability tests; normal exit and SIGKILL release; symlink aliases before file creation; lock-removal mutation is detected.
-- [x] Inactive SDK adapter checkpoint: wraps `_setSessionFile` before initialization/migration, `newSession`, `_appendEntry`, `_rewriteFile`, and `_persist`; reference-counted per-manager leases and explicit release. Tests use real SDK objects, a separate Node process, and detect removal of the open guard. Focused 5/5; server 233/233; Web 853/853; root TypeScript passes.
-- [ ] Mandatory version-bound CLI preload, protecting initial opens and later writes/transitions before mutation, including migration and JSONL import. The adapter is NOT installed by production yet. Remaining coverage: disk-write failure handling/integrity checks; lifecycle disposal and read-only browsing must not leak manager references/leases. Same-process active-manager conflicts beyond concurrent imports still need lifecycle ownership enforcement; initial runtime factory failures (outside AgentSessionRuntime replacement methods), reload/disposal outside this host, and nested callback-created runtimes require additional ownership tests.
-- [x] Invalid-target switch and newSession lease-conflict rollback restore the previous in-memory branch and retain its lease; removing rollback fails both regression tests. The guard now checks the imported SDK `VERSION` and exact `SessionManager` identity, not just the caller's version string (this is not a cryptographic integrity check). Direct `setSessionFile` normalizes Linux `~` and `file://` inputs before choosing the lock key, matching Pi. Focused 8/8; server 236/236; Web 853/853; package build and root TypeScript pass in Docker.
-- [x] Inactive JSONL import adapter holds a temporary destination lease before upstream `copyFileSync`, including across async extension hooks; rejects concurrent same-target imports, releases the temporary reference on cancellation/missing source, and shares ownership with the newly opened manager on success. Real SDK import method + SessionManager with fixture runtime services: 5/5. Removing the pre-copy lease makes the byte-preservation test fail. Full server 241/241, Web 853/853, package build and root TypeScript pass in Docker. This does not claim rollback of upstream copy errors or cleanup after runtime-construction failure.
-- [x] Inactive SDK Runtime lifecycle adapter: releases source only after successful teardown/dispose, scopes target-manager allocations via AsyncLocalStorage, and cleans unadopted managers on failed switch/new/import without touching concurrent unrelated allocations. Adopted target stays locked when a post-switch callback fails; shutdown/dispose failure retains source. Real SDK runtime/manager + fixture session services: 8/8; removing scope cleanup fails 3 tests. Server 249/249, Web 853/853, package build/root TypeScript pass. This does not activate CLI or cover Pi Web's separate SessionRuntime disposal path.
-- [x] Inactive fork adapter: holds source while upstream `forkFrom` runs; temporarily intercepts synchronous `writeFileSync` to reserve its generated target before first write, restoring fs exports in finally. No upstream serialization duplication. Numeric-fd metadata writes bypass interception. `createBranchedSession` holds deferred user-only targets and restores source state/ownership on branch write failure. Real SDK tests 6/6; removing target reservation fails pre-write byte-preservation test. Server 255/255, Web 853/853, build/root TypeScript pass. Assumption: Pi 0.84.4 forkFrom stays synchronous without user callbacks; complete package integrity verification is still required. Partial I/O failure rollback on newly created fork files is not claimed.
-- [x] Explicit CLI preload checkpoint (`node --import .../cli-preload.js`), not yet installed as the container's standard `pi` entrypoint. Original Pi CLI RPC-mode processes reject separately held sessions for `--session` and `--continue`, retain ownership while serving commands, transfer leases on `new_session`/`switch_session`, preserve the current session after a blocked switch, and release on SIGKILL. No NODE_OPTIONS injection into tool descendants. CLI tests 2/2 with multiple command transitions; disabling preload fails the ownership assertion. Contract 7/7, server 257/257, Web 853/853; builds/root TypeScript pass in Docker. Counterparty is a test lease holder, not the Agent Server; interactive TUI, startup failures/reload/read-only manager cleanup and packaged entrypoint acceptance remain pending.
-- [x] RPC existing/new startup lease checkpoint: `startRpcSession` takes the kernel lease before opening an existing manager (or before first new-session write), releases startup-failure leases, and transfers release to SessionRuntime after successful dispose. Common server error handling returns 409 `session_locked` for SSE/pending UI as well as Agent routes, preserving request IDs. Real CLI process ↔ real HTTP Agent adapter test covers bidirectional denial, CLI exit handoff, invalid-session startup cleanup and RPC shutdown release. Removing RPC acquisition yields 200 instead of 409. Server 258/258, Web 853/853, package build/root TypeScript pass. This is not full Task 8 completion: RPC fork/clone/temporary managers and pending mutation shutdown must still be audited; CLI standard image entrypoint is not installed.
-- [ ] CLI wrapper/image native dependency build; actual CLI/RPC contention and upstream-integrity acceptance checks.
+## Acceptance evidence
 
-Primitive verification: focused 4/4, Agent Server 228/228, root Web 853/853; package builds and root TypeScript pass in Docker. These tests are not proof of CLI/RPC entrypoint enforcement. The primitive is intentionally not activated until lifecycle coverage is verified. Native `fs-ext` must be explicitly compiled in the image runtime-builder before refreshed vendor artifacts can be shipped (its current `--ignore-scripts` install is insufficient).
+All execution used Docker API containers, no host mounts or local project execution.
 
+- Agent Contract: **7/7**.
+- Agent Server: **262/262**.
+- Pi Web: **853/853**.
+- Package builds and root TypeScript: passed.
+- ESLint: exit 0, **0 errors / 12 warnings** (including generated dist warnings).
+- Deterministic package tests: **2/2**; vendor SHA-256 verification passed during the official Dockerfile build.
+- Real installed `pi` ↔ `pi-agent-rpc`: both directions reject competing ownership, independent sessions coexist, read-only listing works, SIGKILL and SIGTERM release locks.
+- Real PTY interactive CLI: `--session` and `--resume` select/open and hold a Session; competing CLI is rejected; exit releases ownership.
+- Source tree comparison against the original Pi snapshot: no differences. All **877 Pi dist files** checked against the Phase 1 image have identical hashes.
+- Mutation checks detect removed primitive locks, pre-open guard, import pre-copy lease, fork destination lease, Runtime cleanup, CLI preload, RPC acquisition and RPC clone destination lease.
+
+Reproducible image checks are in `pi-agent-rpc/tests/verify-session-lock.mjs`, `verify-session-lock.sh`, and `verify-cli-tui.py`. The Python PTY test needs Python only in its disposable execution container, not in the release image.
+
+## Support boundary and maintenance
+
+This is advisory, Linux, single-active Agent Server locking. It covers the supported container `pi` entrypoint and server paths; bypassing the wrapper via internal Pi binaries or custom code directly editing JSONL is unsupported. Paths, not hard-link inode aliases, define Session identity. Existing upstream partial-I/O semantics are unchanged: this work prevents competing writers; it is not a transactional filesystem or recovery system. Same-process SDK managers can share a lease for legitimate previews/replacements; only concurrent import operations are independently excluded at that layer.
+
+The synchronous fork/copy interceptors assume the pinned Pi implementation has no asynchronous yield or user callbacks in those operations. Every upstream upgrade must repeat source review, SDK/CLI/PTY tests, and image integrity checks. Global selectors/preload are process-local and installed once. Public browser BFF migration, deployment manifests, and release hardening remain later tasks.

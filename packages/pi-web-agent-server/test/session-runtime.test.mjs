@@ -495,16 +495,17 @@ test("direct destruction still disposes when session_shutdown throws synchronous
   assert.equal(wrapper.isAlive(), false);
 });
 
-test("idle timer preserves active work but reaps a run stuck after Stop", async (t) => {
+test("idle shutdown retains ownership until a stuck Stop settles", async (t) => {
   t.mock.timers.enable({ apis: ["setTimeout"] });
   const calls = [];
   let resolveAbort;
   const inner = makePromptInner(() => Promise.resolve());
   inner.isStreaming = true;
   inner.subscribe = () => () => {};
+  const aborted = new Promise((resolve) => { resolveAbort = resolve; });
   inner.abort = () => {
     calls.push(["abort"]);
-    return new Promise((resolve) => { resolveAbort = resolve; });
+    return aborted;
   };
   inner.extensionRunner = {
     async emit(event) {
@@ -527,16 +528,17 @@ test("idle timer preserves active work but reaps a run stuck after Stop", async 
   t.mock.timers.tick(10 * 60 * 1000);
   await nextTurn();
 
-  assert.equal(wrapper.isAlive(), false);
-  assert.deepEqual(calls, [
-    ["abort"],
-    ["emit", { type: "session_shutdown", reason: "quit" }],
-    ["dispose"],
-  ]);
-
+  assert.equal(wrapper.isAlive(), true);
+  assert.equal(calls.some(([name]) => name === "dispose"), false);
   inner.isStreaming = false;
   resolveAbort();
   await stopping;
+  await wrapper.shutdown();
+  assert.equal(wrapper.isAlive(), false);
+  assert.deepEqual(calls.slice(-2), [
+    ["emit", { type: "session_shutdown", reason: "quit" }],
+    ["dispose"],
+  ]);
 });
 
 test("direct bash commands use sanitized project operations with current shell settings", async (t) => {

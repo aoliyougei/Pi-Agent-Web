@@ -45,9 +45,10 @@ interface HostSession {
 
 export interface SubagentRuntimeDependencies {
   getSession(sessionId: string): HostSession | undefined;
+  acquireSessionLease?(file: string): () => void;
   registerSession(
     inner: AgentSessionLike,
-    options?: { exactSystemPrompt?: string; chatOnly?: boolean },
+    options?: { exactSystemPrompt?: string; chatOnly?: boolean; releaseSessionLease?: () => void },
   ): void;
   reopenSession(sessionId: string, sessionFile: string): Promise<HostSession>;
   resolveSessionPath(sessionId: string): Promise<string | null>;
@@ -141,6 +142,11 @@ export function createSubagentController(
     if (!parent.sessionFile) throw new Error("Parent session must be persisted before starting a subagent");
 
     const releaseSlot = reserveSubagentSlot(parentSessionId);
+    let releaseLease: (() => void) | undefined;
+    let registered = false;
+    let completed = false;
+    let disposed = false;
+    const releaseWhenDone = () => { if (completed && disposed) releaseLease?.(); };
     try {
       const profile = resolveSubagentProfile(parent.cwd, request.profile);
       if (!profile) throw new Error(`Unknown or disabled subagent profile: ${request.profile}`);
@@ -207,6 +213,7 @@ export function createSubagentController(
       );
 
       const sessionManager = SessionManager.create(parent.cwd, undefined, { parentSession: parent.sessionFile });
+      releaseLease = dependencies.acquireSessionLease?.(sessionManager.getSessionFile()!);
       const createdAt = new Date().toISOString();
       const metadata: SubagentMetadata = {
         version: 1,
@@ -240,11 +247,13 @@ export function createSubagentController(
         excludeTools: [...SUBAGENT_CONTROL_TOOL_NAMES],
       });
       dependencies.registerSession(inner, {
+        releaseSessionLease: () => { disposed = true; releaseWhenDone(); },
         ...(promptPlan.exactSystemPrompt !== undefined
           ? { exactSystemPrompt: promptPlan.exactSystemPrompt }
           : {}),
         chatOnly,
       });
+      registered = true;
 
       const initialRun: SubagentRunInfo = {
         sessionId: inner.sessionId,
@@ -345,8 +354,10 @@ export function createSubagentController(
         return result;
       })();
 
+      stored.completion = stored.completion.finally(() => { completed = true; releaseWhenDone(); });
       return { run: initialRun, completion: stored.completion };
     } finally {
+      if (!registered) releaseLease?.();
       releaseSlot();
     }
   }

@@ -6,6 +6,7 @@ import { existsSync, realpathSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import { validateAgentImages } from "../dependencies/image-attachments.js";
 import { acquireSessionLock } from "./session-lock.js";
+import { copyRpcSession } from "./session-copy.js";
 import { join as joinPath } from "node:path";
 import { isExtensionUiResponseFor, pendingOrdinaryExtensionUi } from "../ui/extension-ui.js";
 import { validCustomFrame, validCustomInput } from "../ui/custom-terminal.js";
@@ -227,6 +228,14 @@ export class SessionRuntime {
   private sessionShutdownEmitted = false;
   private forceShutdownOnIdle = false;
   private _alive = true;
+  private closing = false;
+  private quiescenceWaiters: Array<() => void> = [];
+
+  private notifyQuiescent(): void {
+    if (this.activeMutatingCommands === 0 && this.pendingPromptCount === 0) {
+      for (const resolve of this.quiescenceWaiters.splice(0)) resolve();
+    }
+  }
 
   constructor(
     public readonly inner: AgentSessionLike,
@@ -444,7 +453,7 @@ export class SessionRuntime {
     if (!this._alive) return;
     if (!this.isRunning()) this.forceShutdownOnIdle = false;
     this.idleTimer = setTimeout(() => {
-      if (this.isRunning() && !this.forceShutdownOnIdle) {
+      if ((this.isRunning() && !this.forceShutdownOnIdle) || this.pendingUiRequests.size > 0 || (this.activeMutatingCommands > 0 && !this.forceShutdownOnIdle)) {
         this.resetIdleTimer();
         return;
       }
@@ -536,6 +545,7 @@ export class SessionRuntime {
 
   async send(command: Record<string, unknown>): Promise<unknown> {
     const type = command.type as string;
+    if (!this._alive || this.closing) throw new Error("Session is closing or closed");
     const allowedDuringReplacement = COMMANDS_ALLOWED_DURING_SESSION_REPLACEMENT.has(type);
     if (this.sessionReplacement && !allowedDuringReplacement) {
       throw new Error("Session is being copied to a new session");
@@ -551,6 +561,7 @@ export class SessionRuntime {
       // Status reconciliation must not postpone forced cleanup after Stop.
       if (type !== "get_state") this.resetIdleTimer();
       if (this.shouldWaitForExtensions(type)) await this.waitForExtensionsBound();
+      if (this.closing || !this._alive) throw new Error("Session is closing or closed");
       if (this.sessionReplacement && !allowedDuringReplacement) {
         throw new Error("Session is being copied to a new session");
       }
@@ -567,6 +578,7 @@ export class SessionRuntime {
         // this submission starts a run or joins its streaming queue.
         const releaseAdmission = await this.acquirePromptAdmission();
         try {
+          if (this.closing || !this._alive) throw new Error("Session is closing or closed");
           if (this.inner.isBashRunning) {
             throw new Error("Cannot send a prompt while a shell command is running");
           }
@@ -595,6 +607,7 @@ export class SessionRuntime {
             if (promptSettled) return;
             promptSettled = true;
             this.pendingPromptCount = Math.max(0, this.pendingPromptCount - 1);
+            this.notifyQuiescent();
             this.resetIdleTimer();
             this.notifyAgentRunCompleteIfIdle();
           };
@@ -720,23 +733,9 @@ export class SessionRuntime {
           const entry = sessionManager.getEntry(entryId);
           if (!entry) throw new Error("Invalid entry ID for forking");
 
-          const sessionDir = sessionManager.getSessionDir();
-          let newSessionFile: string;
-
-          if (!entry.parentId) {
-            // Fork before the first message: create an empty session linked to this one
-            const newManager = SessionManager.create(sessionManager.getCwd(), sessionDir);
-            newManager.newSession({ parentSession: currentSessionFile });
-            newSessionFile = newManager.getSessionFile() as string;
-          } else {
-            // Fork after some history: copy path up to (but not including) the fork point
-            const sourceManager = SessionManager.open(currentSessionFile, sessionDir);
-            const forkedPath = sourceManager.createBranchedSession(entry.parentId);
-            if (!forkedPath) throw new Error("Failed to create forked session");
-            newSessionFile = forkedPath;
-          }
-
-          const newSessionId = SessionManager.open(newSessionFile, sessionDir).getSessionId();
+          const { file: newSessionFile, id: newSessionId } = copyRpcSession(
+            currentSessionFile, entry.parentId ?? undefined, joinPath(getAgentDir(), "locks", "sessions"),
+          );
           cacheSessionPath(newSessionId, newSessionFile);
           invalidateSessionListCache();
           await this.shutdownAfterSessionReplacement("fork");
@@ -759,12 +758,9 @@ export class SessionRuntime {
         if (!currentSessionFile || !existsSync(currentSessionFile)) return { cancelled: true };
 
         return this.withSessionReplacement("clone", async () => {
-          const sessionDir = sessionManager.getSessionDir();
-          const sourceManager = SessionManager.open(currentSessionFile, sessionDir);
-          const clonedPath = sourceManager.createBranchedSession(leafId);
-          if (!clonedPath || !existsSync(clonedPath)) throw new Error("Failed to clone current session branch");
-
-          const newSessionId = SessionManager.open(clonedPath, sessionDir).getSessionId();
+          const { file: clonedPath, id: newSessionId } = copyRpcSession(
+            currentSessionFile, leafId, joinPath(getAgentDir(), "locks", "sessions"),
+          );
           cacheSessionPath(newSessionId, clonedPath);
           invalidateSessionListCache();
           await this.shutdownAfterSessionReplacement("clone");
@@ -989,11 +985,16 @@ export class SessionRuntime {
       }
     } finally {
       if (tracksMutation) this.activeMutatingCommands = Math.max(0, this.activeMutatingCommands - 1);
+      this.notifyQuiescent();
     }
   }
 
   destroy(): void {
     if (!this._alive) return;
+    if (!this.sessionReplacement && (this.activeMutatingCommands > 0 || this.pendingPromptCount > 0 || (!this.closing && (this.inner.isStreaming || this.inner.isBashRunning)))) {
+      void this.shutdown().catch((error) => console.error("[pi-web] shutdown failed", error));
+      return;
+    }
     this._alive = false;
     if (this.idleTimer) clearTimeout(this.idleTimer);
     if (this.inner.isBashRunning) this.inner.abortBash();
@@ -1049,7 +1050,16 @@ export class SessionRuntime {
     if (this.shutdownPromise) return this.shutdownPromise;
     if (!this._alive) return;
 
+    this.closing = true;
     this.shutdownPromise = (async () => {
+      for (const pending of this.pendingUiResponses.values()) pending.cancel();
+      for (const id of Array.from(this.activeCustomUis.keys())) this.closeCustomUi(id, undefined);
+      if (this.inner.isStreaming || this.pendingPromptCount > 0) await this.inner.abort();
+      if (this.inner.isCompacting) this.inner.abortCompaction();
+      if (this.inner.isBashRunning) this.inner.abortBash();
+      if (!this.sessionReplacement && (this.activeMutatingCommands > 0 || this.pendingPromptCount > 0)) {
+        await new Promise<void>((resolve) => this.quiescenceWaiters.push(resolve));
+      }
       try {
         try {
           await this.waitForExtensionsBound();
@@ -1670,9 +1680,14 @@ function registerRpcWrapper(wrapper: SessionRuntime): void {
 }
 
 const SUBAGENT_CONTROLLER = createSubagentController({
+  acquireSessionLease: (file) => {
+    const lease = acquireSessionLock(file, joinPath(getAgentDir(), "locks", "sessions"), "rpc-subagent");
+    return () => lease.release();
+  },
   getSession: (sessionId) => getRegistry().get(sessionId),
   registerSession: (inner, options) => {
     const wrapper = new SessionRuntime(inner, {
+      releaseSessionLease: options?.releaseSessionLease,
       ...(options?.exactSystemPrompt !== undefined
         ? { exactSystemPrompt: () => options.exactSystemPrompt! }
         : {}),
@@ -1751,11 +1766,14 @@ export async function setRpcSessionTools(
 
   if (!existing?.isAlive()) {
     if (!sessionFile) throw new Error("Session not found");
-    const manager = SessionManager.open(sessionFile, undefined);
-    if (readSubagentSessionResources(manager.getEntries() as unknown as SessionEntry[])) {
-      throw new Error("Subagent tool selection is fixed by its profile");
-    }
-    appendSessionToolSelection(manager, toolNames);
+    const lease = acquireSessionLock(sessionFile, joinPath(getAgentDir(), "locks", "sessions"), "rpc-tools");
+    try {
+      const manager = SessionManager.open(sessionFile, undefined);
+      if (readSubagentSessionResources(manager.getEntries() as unknown as SessionEntry[])) {
+        throw new Error("Subagent tool selection is fixed by its profile");
+      }
+      appendSessionToolSelection(manager, toolNames);
+    } finally { lease.release(); }
     invalidateSessionListCache();
     const started = await startRpcSession(sessionId, sessionFile, undefined);
     return { session: started.session, sessionId: started.realSessionId, recreated: false };

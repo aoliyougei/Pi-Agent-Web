@@ -124,7 +124,7 @@ export function installSessionManagerLocks(
       let released = false;
       return () => { if (!released) { released = true; drop(key); } };
     },
-    async withManagerScope<T>(operation: () => Promise<T>, keep: () => Manager): Promise<T> {
+    async withManagerScope<T>(operation: () => Promise<T>, keep: () => Manager | undefined): Promise<T> {
       const created = new Set<Manager>();
       return acquisitions.run(created, async () => {
         try { return await operation(); }
