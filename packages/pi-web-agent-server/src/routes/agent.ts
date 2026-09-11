@@ -35,7 +35,7 @@ function send(response: ServerResponse, status: number, body: unknown): void {
   response.end(JSON.stringify(body));
 }
 
-async function readJson(request: IncomingMessage): Promise<{ value: unknown; bytes: Buffer }> {
+export async function readJson(request: IncomingMessage): Promise<{ value: unknown; bytes: Buffer }> {
   if (request.headers["content-type"]?.split(";", 1)[0].trim().toLowerCase() !== "application/json") {
     throw Object.assign(new Error("Content-Type must be application/json"), { status: 415 });
   }

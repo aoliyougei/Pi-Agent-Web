@@ -6,6 +6,7 @@ import { existsSync, realpathSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import { validateAgentImages } from "../dependencies/image-attachments.js";
 import { isExtensionUiResponseFor, pendingOrdinaryExtensionUi } from "../ui/extension-ui.js";
+import { validCustomFrame, validCustomInput } from "../ui/custom-terminal.js";
 import { invalidateModelsCache } from "../dependencies/models-cache.js";
 import { resolveVisibleModels, selectInitialModelScope } from "../dependencies/model-scope.js";
 import {
@@ -90,6 +91,7 @@ type ActiveExtensionWidget = {
 };
 
 type ActiveCustomUi = {
+  revision: number;
   component: CustomUiComponent;
   width: number;
   resolve: (value: unknown) => void;
@@ -912,7 +914,9 @@ export class SessionRuntime {
       }
 
       case "extension_ui_input": {
-        this.handleExtensionUiInput(command.id as string, command.data as string);
+        if (typeof command.id !== "string" || !this.inputCustomUi(command.id, { data: command.data })) {
+          throw new Error("Custom UI is not open");
+        }
         return null;
       }
 
@@ -1281,10 +1285,16 @@ export class SessionRuntime {
     } catch (error) {
       lines = [`Extension custom UI render failed: ${error instanceof Error ? error.message : String(error)}`];
     }
+    if (!validCustomFrame(lines)) {
+      this.closeCustomUi(id, undefined);
+      return;
+    }
     const event = {
       type: "extension_ui_request",
       id,
       method: "custom",
+      revision: ++custom.revision,
+      closed: false,
       lines,
     } as ExtensionUiRequest as AgentEvent;
     this.pendingUiRequests.set(id, event);
@@ -1306,10 +1316,19 @@ export class SessionRuntime {
       type: "extension_ui_request",
       id,
       method: "custom",
+      revision: ++custom.revision,
       lines: [],
       closed: true,
     } as ExtensionUiRequest as AgentEvent);
     custom.resolve(value);
+  }
+
+  inputCustomUi(id: string, input: unknown): boolean {
+    const custom = this.activeCustomUis.get(id);
+    if (!custom || custom.settled) return false;
+    if (!validCustomInput(input, custom.revision)) throw new Error("Invalid custom UI input");
+    this.handleExtensionUiInput(id, input.data);
+    return true;
   }
 
   private handleExtensionUiInput(id: string, data: string): void {
@@ -1375,7 +1394,13 @@ export class SessionRuntime {
             finish(undefined as T);
             return;
           }
+          if (!this._alive) {
+            component.dispose?.();
+            finish(undefined as T);
+            return;
+          }
           const custom: ActiveCustomUi = {
+            revision: 0,
             component: component as CustomUiComponent,
             width,
             resolve: (value) => finish(value as T),

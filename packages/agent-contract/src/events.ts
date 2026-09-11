@@ -9,6 +9,15 @@ export interface ConnectedAgentEvent {
   isStreaming: boolean;
 }
 
+export interface CustomUiFrame {
+  type: "extension_ui_request";
+  method: "custom";
+  id: string;
+  revision: number;
+  lines: string[];
+  closed: boolean;
+}
+
 export interface ResyncRequiredAgentEvent {
   type: "resync_required";
 }

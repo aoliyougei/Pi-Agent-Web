@@ -4,6 +4,7 @@ import { isAuthorized } from "./auth.js";
 import { routeAgentRequest, type AgentRouteAdapter } from "./routes/agent.js";
 import { AgentEventChannels, routeAgentEvents } from "./routes/events.js";
 import { routeExtensionUi } from "./routes/extension-ui.js";
+import { routeCustomUi } from "./routes/custom-ui.js";
 import { RequestDeduplicator } from "./runtime/request-dedup.js";
 
 function send(response: ServerResponse, status: number, body: unknown): void {
@@ -44,7 +45,9 @@ export function routeRequest(
   }
   const agent = options.agent;
   if (agent) {
-    return routeExtensionUi(request, response, path, requestId, agent).then((uiHandled) => {
+    return routeCustomUi(request, response, path, requestId, agent)
+      .then((handled) => handled || routeExtensionUi(request, response, path, requestId, agent))
+      .then((uiHandled) => {
       if (uiHandled) return;
       const route = options.events
         ? routeAgentEvents(request, response, path, requestId, agent, options.events)

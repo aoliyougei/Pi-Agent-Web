@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 async function loadSubject() {
-  return import("../../src/dependencies/custom-ui-terminal.ts");
+  return import("../../dist/dependencies/custom-ui-terminal.js");
 }
 
 test("headless custom UI exposes stable terminal dimensions", async () => {

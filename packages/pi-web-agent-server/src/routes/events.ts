@@ -158,6 +158,11 @@ export async function routeAgentEvents(
     }
   }
   for (const event of replay.events) streamWriter.send(event);
+  if (request.headers["last-event-id"] !== undefined) {
+    for (const frame of runtime.currentFrames?.() ?? []) {
+      if (frame && typeof frame === "object" && "method" in frame && frame.method === "custom") streamWriter.data(frame);
+    }
+  }
   if (!response.destroyed) heartbeat = setInterval(() => streamWriter.heartbeat(), HEARTBEAT_MS);
   return true;
 }
