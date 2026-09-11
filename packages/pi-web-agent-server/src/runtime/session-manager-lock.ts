@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,6 +38,7 @@ export function installSessionManagerLocks(
   if (installed.has(managerClass)) throw new Error("SessionManager locks are already installed");
   const leases = new Map<string, Lease>();
   const managers = new Map<Manager, string>();
+  const acquisitions = new AsyncLocalStorage<Set<Manager>>();
   const opening = new Set<Manager>();
   const fileOperations = new Set<string>();
   const retain = (path: string) => {
@@ -58,6 +60,7 @@ export function installSessionManagerLocks(
     if (key !== undefined) { managers.delete(manager); drop(key); }
   };
   const adopt = (manager: Manager, key: string) => {
+    if (!managers.has(manager)) acquisitions.getStore()?.add(manager);
     release(manager);
     managers.set(manager, key);
   };
@@ -100,6 +103,16 @@ export function installSessionManagerLocks(
   installed.add(managerClass);
   return {
     release,
+    async withManagerScope<T>(operation: () => Promise<T>, keep: () => Manager): Promise<T> {
+      const created = new Set<Manager>();
+      return acquisitions.run(created, async () => {
+        try { return await operation(); }
+        finally {
+          const active = keep();
+          for (const manager of created) if (manager !== active) release(manager);
+        }
+      });
+    },
     async withFileLease<T>(file: string, operation: () => Promise<T>): Promise<T> {
       const canonical = canonicalSessionPath(file);
       if (fileOperations.has(canonical)) throw new SessionLockedError();
