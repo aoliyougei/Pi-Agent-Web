@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { existsSync, realpathSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import { validateAgentImages } from "../dependencies/image-attachments.js";
+import { isExtensionUiResponseFor, pendingOrdinaryExtensionUi } from "../ui/extension-ui.js";
 import { invalidateModelsCache } from "../dependencies/models-cache.js";
 import { resolveVisibleModels, selectInitialModelScope } from "../dependencies/model-scope.js";
 import {
@@ -470,6 +471,18 @@ export class SessionRuntime {
     return [...this.pendingUiRequests.values()];
   }
 
+  getPendingExtensionUiRequests() {
+    return pendingOrdinaryExtensionUi(this.pendingUiRequests.values());
+  }
+
+  respondToExtensionUi(id: string, response: unknown): boolean {
+    const request = this.getPendingExtensionUiRequests().find((item) => item.id === id);
+    const pending = this.pendingUiResponses.get(id);
+    if (!request || !pending || !isExtensionUiResponseFor(request, response)) return false;
+    pending.resolve({ type: "extension_ui_response", id, ...response } as ExtensionUiResponse);
+    return true;
+  }
+
   onEvent(listener: EventListener): () => void {
     this.listeners.push(listener);
     for (const event of this.pendingUiRequests.values()) listener(event);
@@ -891,7 +904,10 @@ export class SessionRuntime {
       }
 
       case "extension_ui_response": {
-        this.resolveExtensionUiResponse(command as ExtensionUiResponse);
+        const { type: _type, id, ...response } = command;
+        if (typeof id !== "string" || !this.respondToExtensionUi(id, response)) {
+          throw new Error("Invalid extension UI response");
+        }
         return null;
       }
 
@@ -1042,12 +1058,6 @@ export class SessionRuntime {
       }
     })();
     return this.shutdownPromise;
-  }
-
-  private resolveExtensionUiResponse(response: ExtensionUiResponse): void {
-    const pending = this.pendingUiResponses.get(response.id);
-    if (!pending) return;
-    pending.resolve(response);
   }
 
   private getExtensionStatuses(): Array<{ key: string; text: string }> {
