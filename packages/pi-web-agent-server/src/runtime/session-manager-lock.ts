@@ -2,7 +2,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { SessionManager, VERSION } from "@earendil-works/pi-coding-agent";
-import { acquireSessionLock, canonicalSessionPath } from "./session-lock.js";
+import { acquireSessionLock, canonicalSessionPath, SessionLockedError } from "./session-lock.js";
 
 interface Manager {
   getSessionFile(): string | undefined;
@@ -38,6 +38,7 @@ export function installSessionManagerLocks(
   const leases = new Map<string, Lease>();
   const managers = new Map<Manager, string>();
   const opening = new Set<Manager>();
+  const fileOperations = new Set<string>();
   const retain = (path: string) => {
     const key = canonicalSessionPath(path);
     let lease = leases.get(key);
@@ -99,6 +100,14 @@ export function installSessionManagerLocks(
   installed.add(managerClass);
   return {
     release,
+    async withFileLease<T>(file: string, operation: () => Promise<T>): Promise<T> {
+      const canonical = canonicalSessionPath(file);
+      if (fileOperations.has(canonical)) throw new SessionLockedError();
+      const key = retain(canonical);
+      fileOperations.add(key);
+      try { return await operation(); }
+      finally { fileOperations.delete(key); drop(key); }
+    },
     uninstall() {
       for (const [name, method] of originals) prototype[name] = method;
       for (const manager of managers.keys()) release(manager);
