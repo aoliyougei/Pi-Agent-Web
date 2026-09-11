@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@aoliyougei/pi-agent-contract": "0.1.0",
+    "fs-ext": "2.1.1",
     "js-yaml": "^5.2.3",
     "proper-lockfile": "4.1.2",
     "web-push": "^3.6.7"
@@ -26,12 +27,21 @@
     "@earendil-works/pi-tui": "0.84.4"
   },
   "peerDependenciesMeta": {
-    "@earendil-works/pi-agent-core": { "optional": true },
-    "@earendil-works/pi-ai": { "optional": true },
-    "@earendil-works/pi-coding-agent": { "optional": true },
-    "@earendil-works/pi-tui": { "optional": true }
+    "@earendil-works/pi-agent-core": {
+      "optional": true
+    },
+    "@earendil-works/pi-ai": {
+      "optional": true
+    },
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "@types/fs-ext": "2.0.3",
     "@types/node": "^25",
     "typescript": "^5"
   }
