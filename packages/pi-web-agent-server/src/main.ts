@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { PROTOCOL_VERSION, REQUIRED_CAPABILITIES } from "@aoliyougei/pi-agent-contract";
 import { loadToken } from "./config.js";
+import { createAgentRouteAdapter } from "./runtime/agent-adapter.js";
 import { createAgentServer } from "./server.js";
 
 const tokenPath = process.env.PI_AGENT_RPC_TOKEN_FILE ?? "/run/secrets/pi-agent-rpc-token";
@@ -13,6 +14,7 @@ const token = await loadToken(tokenPath, {
 });
 const app = createAgentServer({
   token,
+  agent: createAgentRouteAdapter(),
   version: {
     protocolVersion: PROTOCOL_VERSION,
     serverVersion: "0.1.0",

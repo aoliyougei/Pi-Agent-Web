@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { agentError, type AgentVersion } from "@aoliyougei/pi-agent-contract";
 import { isAuthorized } from "./auth.js";
+import { routeAgentRequest, type AgentRouteAdapter } from "./routes/agent.js";
 
 function send(response: ServerResponse, status: number, body: unknown): void {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
@@ -10,8 +11,8 @@ function send(response: ServerResponse, status: number, body: unknown): void {
 export function routeRequest(
   request: IncomingMessage,
   response: ServerResponse,
-  options: { token: string; version: AgentVersion; ready: () => boolean },
-): void {
+  options: { token: string; version: AgentVersion; ready: () => boolean; agent?: AgentRouteAdapter },
+): void | Promise<void> {
   const path = new URL(request.url ?? "/", "http://internal").pathname;
   if (request.method === "GET" && path === "/internal/v1/health/live") {
     send(response, 200, { status: "ok" });
@@ -30,6 +31,11 @@ export function routeRequest(
   if (request.method === "GET" && path === "/internal/v1/version") {
     send(response, 200, options.version);
     return;
+  }
+  if (options.agent) {
+    return routeAgentRequest(request, response, path, requestId, options.agent).then((handled) => {
+      if (!handled) send(response, 404, agentError("invalid_request", "Not found", requestId));
+    });
   }
   send(response, 404, agentError("invalid_request", "Not found", requestId));
 }

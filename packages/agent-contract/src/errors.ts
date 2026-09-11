@@ -1,6 +1,7 @@
 export type AgentErrorCode =
   | "unauthorized"
   | "protocol_mismatch"
+  | "prompt_rejected"
   | "invalid_request"
   | "request_too_large"
   | "session_not_found"
