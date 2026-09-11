@@ -17,6 +17,7 @@ export interface AgentRouteRuntime {
 
 export interface AgentRouteAdapter {
   open(id: string): Promise<AgentRouteRuntime | null>;
+  current?(id: string): AgentRouteRuntime | null;
   send(id: string, command: AgentCommand): Promise<{ found: boolean; data?: unknown }>;
   create(request: NewAgentRequest): Promise<{ id: string; runtime: AgentRouteRuntime }>;
   running(): {
@@ -127,7 +128,10 @@ export async function routeAgentRequest(
       }, operation);
       send(response, 200, body);
     } catch (error) {
-      fail(response, error, requestId);
+      if (parsed.command.type === "prompt" && !(error && typeof error === "object" && "code" in error && (error.code === "request_id_conflict" || error.code === "session_locked"))) {
+        const status = error && typeof error === "object" && "status" in error && error.status === 400 ? 400 : 500;
+        send(response, status, { ...agentError("prompt_rejected", error instanceof Error ? error.message : "Prompt rejected", requestId), accepted: false });
+      } else fail(response, error, requestId);
     }
     return true;
   }
@@ -159,7 +163,9 @@ export async function routeAgentRequest(
   }
   try {
     if (request.method === "GET") {
-      const runtime = await agent.open(id);
+      const passive = new URL(request.url ?? "/", "http://internal").searchParams.get("start") === "false";
+      const runtime = passive ? agent.current?.(id) : await agent.open(id);
+      if (passive && !runtime) { send(response, 200, { running: false }); return true; }
       if (!runtime) {
         send(response, 404, agentError("session_not_found", "Session not found", requestId));
         return true;
@@ -173,7 +179,9 @@ export async function routeAgentRequest(
       fingerprint: createHash("sha256").update(request.method).update(path).update(bytes!).digest("hex"),
     }, operation);
     if (!result.found) {
-      send(response, 404, agentError("session_not_found", "Session not found", requestId));
+      send(response, 404, command.type === "prompt"
+        ? { ...agentError("prompt_rejected", "Session not found", requestId), accepted: false }
+        : agentError("session_not_found", "Session not found", requestId));
       return true;
     }
     send(response, 200, { success: true, data: result.data });

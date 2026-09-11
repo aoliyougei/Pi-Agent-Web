@@ -1,23 +1,32 @@
 # Phase 2 Task 9 — inactive Agent BFF adapters
 
-Status: **in progress**, not ready to activate public routes.
+Status: **Task 9 complete; public route activation remains gated on Phase 3.**
 
-## Completed transport checkpoint
+## Transport and browser compatibility
 
-- [x] `lib/agent-rpc/proxy.ts`: single-attempt native fetch stream forwarding for JSON, SSE and downloads; no whole-body buffering or SSE reserialization.
-- [x] `lib/agent-rpc/routes/agent.ts`: inactive new/running/state/command/events/bash-output path adapters, using an explicitly supplied Agent fetch client.
-- [x] Request header allowlist keeps browser credentials/forwarded identity out; the existing client injects the service credential.
-- [x] Response allowlist strips cookies, redirects and hop-by-hop headers. Redirect following is disabled. No upstream URL/token in transport errors.
-- [x] Exact command bytes, status, SSE IDs/heartbeats, Last-Event-ID and file disposition survive transport.
-- [x] Browser abort and response-reader cancellation reach upstream. Network failure does not assert `accepted:false`: the Agent may have executed the POST before connection loss.
-- [x] Fixture HTTP tests 6/6; Web 859/859; Server package build/root TypeScript passed; lint 0 errors / 12 existing warnings. Forcing upstream status to 200 fails two tests; restored tests pass. All execution in Docker.
+- `lib/agent-rpc/proxy.ts` forwards JSON/SSE/download streams once without buffering successful responses. Browser credentials/forwarded identity are excluded; the existing client injects the service token. Redirects are not followed, response cookies are stripped, and browser abort/reader cancellation propagate upstream.
+- `lib/agent-rpc/routes/agent.ts` provides inactive new/running/state/command/events/bash-output adapters. Inject the existing `agentFetch` at activation. No local Runtime fallback.
+- Structured internal errors become browser `{error: string, code, requestId, accepted?}` errors. Transport failures remain ambiguous: no automatic retry and no invented `accepted:false`. Real rejected prompts for missing sessions/invalid startup retain definite rejection semantics.
+- Browser GET state uses internal `?start=false`, returning `{running:false}` without starting dormant sessions or acquiring writer locks. Internal default GET behavior is unchanged.
+- Native EventSource cannot inspect an HTTP 409 body. The BFF translates **only** `resync_required` into a short SSE control event. All normal events, IDs, frames and heartbeats pass through unchanged; other conflicts remain errors.
+- `AgentEventConnection` retains a session-scoped cursor across application-created reconnects; the BFF converts its query cursor into Last-Event-ID, with an actual Last-Event-ID header taking precedence. On resync it closes the old source, clears the expired cursor, waits for reconciliation, then reconnects without replaying a prompt.
+- `useAgentSession` reuses existing Agent-state and persisted-context/state loading for reconciliation. Session/run guards prevent late snapshots from replacing a newer run. Legacy public streams have no cursor/control events and continue using the old path.
 
-## Remaining before Task 9 completion / Phase 3 activation
+## Agent-side prerequisite
 
-- [ ] Browser `resync_required` recovery: HTTP 409 passes through unchanged, but native EventSource hides its response body. Integrate with existing state/context reconciliation, never resend prompts. Preserve cursors across application-created reconnects (current AgentEventConnection replaces EventSource instances).
-- [ ] Compare inactive adapters against real Agent Server and the browser API baseline, not only the transport fixture. In particular, structured Agent errors versus browser string errors and GET state auto-start versus baseline `{running:false}` semantics need explicit compatibility handling.
-- [ ] Implement/verify Agent-side bash-output endpoint before enabling its BFF adapter; the adapter alone does not supply file access authorization or storage.
-- [ ] Recheck prompt-acceptance failure semantics and browser source wiring before public handler replacement.
-- [ ] Complete Phase 2 end-to-end acceptance and subsequent Phase 3 migration gates.
+The authenticated bash-output endpoint now lives in Agent Server. It reuses migrated file helpers: temp-root and filename validation, exact bashExecution fullOutputPath reference, regular-file/no-symlink checks, bounded inline reads, and streaming downloads with disconnect cleanup. Forbidden files, oversized inline output, missing files, and symlinks have explicit tested responses.
 
-No public `app/api/agent/*` Route Handler, browser hook, local Runtime, image, or vendor artifact changed in this checkpoint. Activation will pass the existing `agentFetch` to `createRemoteAgentRoutes`; there is no fallback to local execution in these adapters.
+## Verification (Docker only)
+
+- Contract **7/7**; Agent Server **262/262**; Web **863/863** (includes new real-Agent HTTP integration).
+- Contract/Server builds and root TypeScript passed; lint **0 errors / 12 existing warnings**.
+- Fixture tests verify exact command bytes/status, credential isolation, redirects, stream forwarding and cancellation.
+- Real HTTP Agent + SDK + Session files verify passive state, creation/commands, error compatibility, SSE/resync and authorized inline/download access, including symlink and size rejection.
+- Connection tests verify cursor isolation, reconciliation ordering and header precedence. Dependency AST traversal forbids local execution/SDK imports in the inactive adapter closure.
+- Mutation checks: removing resync callback or bash-output authorization fails tests; restored checks pass. Earlier forced-status mutation also fails the transport tests.
+
+For the real integration test, build Contract and Server before `npm test` because it intentionally loads the packaged Server dist rather than mocking its implementation.
+
+## Next gate — not part of Task 9 completion
+
+No public `app/api/agent/*` handler was switched and `lib/rpc-manager.ts` remains intact. Vendor artifacts and images still contain the Task 8 checkpoint, not these new server endpoints. Phase 2 acceptance must repackage/import/rebuild and run the full behavior matrix before Phase 3 activates the remote BFF and migrates remaining session/files/config/management APIs. No Phase 2 completion, browser deployment or image release is claimed here.

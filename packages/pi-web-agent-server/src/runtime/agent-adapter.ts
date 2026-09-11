@@ -13,6 +13,7 @@ import {
 
 export function createAgentRouteAdapter(): AgentRouteAdapter {
   return {
+    current(id) { const runtime = getRpcSession(id); return runtime?.isAlive() ? runtime : null; },
     async open(id) {
       const existing = getRpcSession(id);
       if (existing?.isAlive()) return existing;
@@ -33,7 +34,7 @@ export function createAgentRouteAdapter(): AgentRouteAdapter {
       return runtime ? { found: true, data: await runtime.send(command) } : { found: false };
     },
     async create(request: NewAgentRequest) {
-      if (!existsSync(request.cwd)) throw new Error(`Directory does not exist: ${request.cwd}`);
+      if (!existsSync(request.cwd)) throw Object.assign(new Error(`Directory does not exist: ${request.cwd}`), { status: 400 });
       const started = await startRpcSession(`__new__${randomUUID()}`, "", request.cwd, request.options);
       return { id: started.realSessionId, runtime: started.session };
     },

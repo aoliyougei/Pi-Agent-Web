@@ -9,6 +9,7 @@ agent-event-wire.ts
 allowed-roots.ts
 api-types.ts
 atomic-file.ts
+bash-output.ts
 chat-only.ts
 custom-ui-terminal.ts
 frontmatter.ts
@@ -27,6 +28,7 @@ powershell-settings.ts
 project-command-env.ts
 project-identity.ts
 project-trust.ts
+session-file-references-core.ts
 session-path.ts
 session-reader.ts
 session-tool-selection.ts

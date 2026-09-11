@@ -321,6 +321,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   const [queuedMessages, setQueuedMessages] = useState<QueuedMessages>({ steering: [], followUp: [] });
 
   const eventConnectionRef = useRef<AgentEventConnection | null>(null);
+  const resyncRef = useRef<(sid: string) => Promise<void>>(async () => {});
   const eventStreamGraceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const eventStreamGraceGenerationRef = useRef(0);
   const eventStreamGraceActiveRef = useRef(false);
@@ -358,7 +359,8 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
 
   if (!eventConnectionRef.current) {
     eventConnectionRef.current = new AgentEventConnection({
-      createSource: (sid) => new EventSource(`/api/agent/${encodeURIComponent(sid)}/events`),
+      createSource: (sid, cursor) => new EventSource(`/api/agent/${encodeURIComponent(sid)}/events${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`),
+      onResync: (sid) => resyncRef.current(sid),
       onEvent: (event) => handleAgentEventRef.current?.(event as AgentEvent),
       shouldMaintain: (sid) => (
         sessionHookMountedRef.current
@@ -449,7 +451,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     } satisfies SessionStatsInfo;
   }, [messages, sessionStatsOverride, contextUsage, data?.context.messages, data?.filePath, data?.totalActiveMs, data?.stats, session?.id, session?.name]);
 
-  const loadSession = useCallback(async (sid: string, showLoading = false, includeState = false) => {
+  const loadSession = useCallback(async (sid: string, showLoading = false, includeState = false, expectedRunId?: number) => {
     let messagesLoaded = false;
     try {
       if (showLoading) setLoading(true);
@@ -469,7 +471,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const d = await res.json() as SessionData;
-      if (sessionIdRef.current !== sid) return null;
+      if (sessionIdRef.current !== sid || (expectedRunId !== undefined && promptRunIdRef.current !== expectedRunId)) return null;
       const persistedMessages = d.context.messages;
       setData(d);
       setActiveLeafId(d.leafId);
@@ -492,7 +494,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         const stateRes = await fetch(`/api/sessions/${encodeURIComponent(sid)}/state`);
         if (!stateRes.ok) throw new Error(`HTTP ${stateRes.status}`);
         const agentState = await stateRes.json() as { running: boolean; state?: AgentStateResponse };
-        if (sessionIdRef.current !== sid) return null;
+        if (sessionIdRef.current !== sid || (expectedRunId !== undefined && promptRunIdRef.current !== expectedRunId)) return null;
 
         const liveState = agentState.state;
         if (liveState) {
@@ -1013,6 +1015,13 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       // Network still down — the next poll / visibility / online tick retries.
     }
   }, [finishPromptWithoutStream]);
+
+  resyncRef.current = async (sid) => {
+    if (!sessionHookMountedRef.current || sessionIdRef.current !== sid) return;
+    const runId = promptRunIdRef.current;
+    await reconcileAgentState(sid);
+    if (sessionHookMountedRef.current && sessionIdRef.current === sid && promptRunIdRef.current === runId) await loadSession(sid, false, true, runId);
+  };
 
   // Recovery net for missed SSE events: while the agent is running, verify
   // against the server periodically and whenever the tab returns to the

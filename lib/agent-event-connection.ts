@@ -34,7 +34,8 @@ type Connection = {
 };
 
 export interface AgentEventConnectionOptions {
-  createSource(sessionId: string): AgentEventSourceLike;
+  createSource(sessionId: string, cursor?: string): AgentEventSourceLike;
+  onResync?(sessionId: string): Promise<void>;
   onEvent(event: AgentEventLike): void;
   shouldMaintain(sessionId: string): boolean;
   readinessTimeoutMs: number;
@@ -49,6 +50,8 @@ export class AgentEventConnection {
   private current: Connection | null = null;
   private retry: { sessionId: string; timer: ReturnType<typeof setTimeout> } | null = null;
   private retryGeneration = 0;
+  private cursor: { sessionId: string; value: string } | null = null;
+  private recovery: { sessionId: string; promise: Promise<void> } | null = null;
 
   constructor(private readonly options: AgentEventConnectionOptions) {}
 
@@ -73,6 +76,11 @@ export class AgentEventConnection {
 
   async ensureConnected(sessionId: string): Promise<void> {
     while (true) {
+      if (this.recovery?.sessionId === sessionId) {
+        const generation = this.retryGeneration;
+        await this.recovery.promise;
+        if (generation !== this.retryGeneration) throw new AgentEventConnectionError("closed");
+      }
       let connection = this.current;
       if (!connection || connection.sessionId !== sessionId) {
         connection = this.open(sessionId);
@@ -100,7 +108,7 @@ export class AgentEventConnection {
 
     let source: AgentEventSourceLike;
     try {
-      source = this.options.createSource(sessionId);
+      source = this.options.createSource(sessionId, this.cursor?.sessionId === sessionId ? this.cursor.value : undefined);
     } catch (error) {
       throw new AgentEventConnectionError(
         "closed",
@@ -146,6 +154,20 @@ export class AgentEventConnection {
         return;
       }
 
+      if (message.lastEventId) this.cursor = { sessionId, value: message.lastEventId };
+      if (event.type === "resync_required") {
+        this.cursor = null;
+        this.stopRetrying();
+        this.discard(connection, new AgentEventConnectionError("closed"));
+        const generation = this.retryGeneration;
+        const recovery = { sessionId, promise: Promise.resolve().then(() => this.options.onResync?.(sessionId)) };
+        this.recovery = recovery;
+        void recovery.promise.catch((error) => this.options.onUnexpectedError?.(error)).finally(() => {
+          if (this.recovery === recovery) this.recovery = null;
+          if (generation === this.retryGeneration) this.scheduleRetry(sessionId);
+        });
+        return;
+      }
       if (event.type === "connected") {
         attempt.ready = true;
         attempt.succeed();
