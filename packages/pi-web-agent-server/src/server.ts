@@ -27,8 +27,14 @@ export function createAgentServer(options: {
   const dedup = new RequestDeduplicator();
   const events = new AgentEventChannels(eventBufferCapacity);
   const server: Server = createServer((request, response) => {
-    void Promise.resolve(routeRequest(request, response, { ...options, dedup, events, ready: () => ready })).catch(() => {
-      if (!response.headersSent) response.writeHead(500, { "content-type": "application/json; charset=utf-8" });
+    void Promise.resolve(routeRequest(request, response, { ...options, dedup, events, ready: () => ready })).catch((error: unknown) => {
+      if (response.headersSent) { response.destroy(); return; }
+      if (error && typeof error === "object" && "code" in error && error.code === "session_locked") {
+        response.writeHead(409, { "content-type": "application/json; charset=utf-8" });
+        response.end(JSON.stringify({ error: { code: "session_locked", message: "Session is already owned by another CLI or RPC runtime", requestId: request.headers["x-request-id"]?.toString() ?? "unknown" } }));
+        return;
+      }
+      response.writeHead(500, { "content-type": "application/json; charset=utf-8" });
       response.end(JSON.stringify({ error: { code: "internal_error", message: "Internal error", requestId: "unknown" } }));
     });
   });

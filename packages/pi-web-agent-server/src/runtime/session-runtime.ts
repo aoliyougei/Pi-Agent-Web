@@ -5,6 +5,8 @@ import { randomUUID } from "crypto";
 import { existsSync, realpathSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import { validateAgentImages } from "../dependencies/image-attachments.js";
+import { acquireSessionLock } from "./session-lock.js";
+import { join as joinPath } from "node:path";
 import { isExtensionUiResponseFor, pendingOrdinaryExtensionUi } from "../ui/extension-ui.js";
 import { validCustomFrame, validCustomInput } from "../ui/custom-terminal.js";
 import { invalidateModelsCache } from "../dependencies/models-cache.js";
@@ -114,6 +116,7 @@ type ExtensionCommandContextActionsLike = {
 };
 
 type SessionRuntimeOptions = {
+  releaseSessionLease?: () => void;
   exactSystemPrompt?: () => string;
   chatOnly?: boolean;
   onAgentRunComplete?: AgentRunCompleteListener;
@@ -219,6 +222,7 @@ export class SessionRuntime {
   private unsubscribe: (() => void) | null = null;
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
   private onDestroyCallback: (() => void) | null = null;
+  private readonly releaseSessionLease?: () => void;
   private shutdownPromise: Promise<void> | null = null;
   private sessionShutdownEmitted = false;
   private forceShutdownOnIdle = false;
@@ -228,6 +232,7 @@ export class SessionRuntime {
     public readonly inner: AgentSessionLike,
     options: SessionRuntimeOptions = {},
   ) {
+    this.releaseSessionLease = options.releaseSessionLease;
     this.exactSystemPrompt = options.exactSystemPrompt;
     this.chatOnly = options.chatOnly ?? false;
     this.onAgentRunComplete = options.onAgentRunComplete;
@@ -1002,6 +1007,7 @@ export class SessionRuntime {
     const finishDispose = () => {
       try {
         this.inner.dispose();
+        this.releaseSessionLease?.();
       } finally {
         this.onDestroyCallback?.();
       }
@@ -1934,12 +1940,17 @@ export async function startRpcSession(
   const inflight = locks.get(sessionId);
   if (inflight) return inflight;
 
+  let lease: ReturnType<typeof acquireSessionLock> | undefined;
+  const lockDirectory = joinPath(getAgentDir(), "locks", "sessions");
+  try {
   let sessionManager: SessionManager;
   if (sessionFile) {
+    lease = acquireSessionLock(sessionFile, lockDirectory, "rpc");
     sessionManager = SessionManager.open(sessionFile, undefined);
   } else {
     if (!cwd) throw new Error("cwd is required for a new session");
     sessionManager = SessionManager.create(cwd, undefined);
+    lease = acquireSessionLock(sessionManager.getSessionFile()!, lockDirectory, "rpc");
   }
   const sessionCwd = sessionManager.getCwd();
   const subagentResources = sessionFile
@@ -2088,6 +2099,7 @@ export async function startRpcSession(
         : () => contextFilesSystemPrompt(inner.resourceLoader.getAgentsFiles().agentsFiles)
       : undefined;
     const wrapper = new SessionRuntime(inner, {
+      releaseSessionLease: () => lease?.release(),
       exactSystemPrompt,
       chatOnly,
       onAgentRunComplete: (completedSessionId) => {
@@ -2107,5 +2119,9 @@ export async function startRpcSession(
   });
 
   locks.set(sessionId, starting);
-  return starting;
+  return await starting;
+  } catch (error) {
+    lease?.release();
+    throw error;
+  }
 }
