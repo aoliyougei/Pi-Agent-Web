@@ -27,7 +27,8 @@ The user approved proceeding with the mandatory preload/interception adapter. Do
 
 - [x] Shared OS lease primitive: exact `fs-ext@2.1.1`, canonical path hashing, nonblocking kernel flock, metadata without stale-file deletion, idempotent release.
 - [x] Real Node child-process and shell flock interoperability tests; normal exit and SIGKILL release; symlink aliases before file creation; lock-removal mutation is detected.
-- [ ] Mandatory version-bound CLI preload, protecting initial opens and later writes/transitions before mutation, including migration and JSONL import.
+- [x] Inactive SDK adapter checkpoint: wraps `_setSessionFile` before initialization/migration, `newSession`, `_appendEntry`, `_rewriteFile`, and `_persist`; reference-counted per-manager leases and explicit release. Tests use real SDK objects, a separate Node process, and detect removal of the open guard. Focused 5/5; server 233/233; Web 853/853; root TypeScript passes.
+- [ ] Mandatory version-bound CLI preload, protecting initial opens and later writes/transitions before mutation, including migration and JSONL import. The adapter is NOT installed by production yet. Remaining coverage: `forkFrom` writes before constructing its target manager; runtime JSONL import copies before `open`; transactional failure rollback; actual package-version/integrity check rather than a caller-supplied version; lifecycle disposal and read-only browsing must not leak manager references/leases.
 - [ ] RPC ownership and lifecycle release; map conflicts to HTTP 409 `session_locked`.
 - [ ] CLI wrapper/image native dependency build; actual CLI/RPC contention and upstream-integrity acceptance checks.
 
