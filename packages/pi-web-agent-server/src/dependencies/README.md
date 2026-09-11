@@ -5,6 +5,7 @@ Generated from `lib/rpc-manager.ts` at Pi Agent Web commit `3e04ccd` and reviewe
 Agent-owned modules:
 
 ```text
+agent-event-wire.ts
 allowed-roots.ts
 api-types.ts
 atomic-file.ts

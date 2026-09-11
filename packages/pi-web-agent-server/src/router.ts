@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { agentError, type AgentVersion } from "@aoliyougei/pi-agent-contract";
 import { isAuthorized } from "./auth.js";
 import { routeAgentRequest, type AgentRouteAdapter } from "./routes/agent.js";
+import { AgentEventChannels, routeAgentEvents } from "./routes/events.js";
 import { RequestDeduplicator } from "./runtime/request-dedup.js";
 
 function send(response: ServerResponse, status: number, body: unknown): void {
@@ -18,6 +19,7 @@ export function routeRequest(
     ready: () => boolean;
     agent?: AgentRouteAdapter;
     dedup?: RequestDeduplicator;
+    events?: AgentEventChannels;
   },
 ): void | Promise<void> {
   const path = new URL(request.url ?? "/", "http://internal").pathname;
@@ -39,10 +41,16 @@ export function routeRequest(
     send(response, 200, options.version);
     return;
   }
-  if (options.agent) {
-    return routeAgentRequest(request, response, path, requestId, options.agent, options.dedup ?? new RequestDeduplicator()).then((handled) => {
-      if (!handled) send(response, 404, agentError("invalid_request", "Not found", requestId));
-    });
+  const agent = options.agent;
+  if (agent) {
+    const route = options.events
+      ? routeAgentEvents(request, response, path, requestId, agent, options.events)
+      : Promise.resolve(false);
+    return route.then((handled) => handled
+      ? undefined
+      : routeAgentRequest(request, response, path, requestId, agent, options.dedup ?? new RequestDeduplicator()).then((agentHandled) => {
+        if (!agentHandled) send(response, 404, agentError("invalid_request", "Not found", requestId));
+      }));
   }
   send(response, 404, agentError("invalid_request", "Not found", requestId));
 }

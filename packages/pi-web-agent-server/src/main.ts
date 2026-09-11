@@ -7,6 +7,7 @@ import { createAgentServer } from "./server.js";
 const tokenPath = process.env.PI_AGENT_RPC_TOKEN_FILE ?? "/run/secrets/pi-agent-rpc-token";
 const host = process.env.PI_AGENT_RPC_HOST ?? "0.0.0.0";
 const port = Number(process.env.PI_AGENT_RPC_PORT ?? "8080");
+const eventBufferCapacity = Number(process.env.PI_AGENT_RPC_EVENT_BUFFER_CAPACITY ?? "1000");
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Invalid RPC port");
 const token = await loadToken(tokenPath, {
   uid: process.getuid?.() ?? -1,
@@ -15,6 +16,7 @@ const token = await loadToken(tokenPath, {
 const app = createAgentServer({
   token,
   agent: createAgentRouteAdapter(),
+  eventBufferCapacity,
   version: {
     protocolVersion: PROTOCOL_VERSION,
     serverVersion: "0.1.0",

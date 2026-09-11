@@ -3,6 +3,7 @@ import type { AddressInfo } from "node:net";
 import type { AgentVersion } from "@aoliyougei/pi-agent-contract";
 import { routeRequest } from "./router.js";
 import type { AgentRouteAdapter } from "./routes/agent.js";
+import { AgentEventChannels } from "./routes/events.js";
 import { RequestDeduplicator } from "./runtime/request-dedup.js";
 
 export interface AgentServer {
@@ -12,11 +13,21 @@ export interface AgentServer {
   close(): Promise<void>;
 }
 
-export function createAgentServer(options: { token: string; version: AgentVersion; agent?: AgentRouteAdapter }): AgentServer {
+export function createAgentServer(options: {
+  token: string;
+  version: AgentVersion;
+  agent?: AgentRouteAdapter;
+  eventBufferCapacity?: number;
+}): AgentServer {
+  const eventBufferCapacity = options.eventBufferCapacity ?? 1_000;
+  if (!Number.isInteger(eventBufferCapacity) || eventBufferCapacity < 1 || eventBufferCapacity > 100_000) {
+    throw new Error("Invalid event buffer capacity");
+  }
   let ready = true;
   const dedup = new RequestDeduplicator();
+  const events = new AgentEventChannels(eventBufferCapacity);
   const server: Server = createServer((request, response) => {
-    void Promise.resolve(routeRequest(request, response, { ...options, dedup, ready: () => ready })).catch(() => {
+    void Promise.resolve(routeRequest(request, response, { ...options, dedup, events, ready: () => ready })).catch(() => {
       if (!response.headersSent) response.writeHead(500, { "content-type": "application/json; charset=utf-8" });
       response.end(JSON.stringify({ error: { code: "internal_error", message: "Internal error", requestId: "unknown" } }));
     });
@@ -32,6 +43,7 @@ export function createAgentServer(options: { token: string; version: AgentVersio
     address: () => server.address(),
     beginShutdown: () => { ready = false; },
     close: () => new Promise((resolve, reject) => {
+      events.close();
       if (!server.listening) return resolve();
       server.close((error) => error ? reject(error) : resolve());
     }),

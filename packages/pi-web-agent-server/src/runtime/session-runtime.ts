@@ -466,6 +466,10 @@ export class SessionRuntime {
     cacheSessionPath(this.inner.sessionId, sessionFile);
   }
 
+  currentFrames(): AgentEvent[] {
+    return [...this.pendingUiRequests.values()];
+  }
+
   onEvent(listener: EventListener): () => void {
     this.listeners.push(listener);
     for (const event of this.pendingUiRequests.values()) listener(event);
