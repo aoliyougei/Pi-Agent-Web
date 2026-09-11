@@ -1,3 +1,7 @@
+import { homedir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { SessionManager, VERSION } from "@earendil-works/pi-coding-agent";
 import { acquireSessionLock, canonicalSessionPath } from "./session-lock.js";
 
 interface Manager {
@@ -7,12 +11,23 @@ interface Manager {
 type Method = (this: Manager, ...args: unknown[]) => unknown;
 type Lease = ReturnType<typeof acquireSessionLock> & { users: number };
 
+// Pi 0.84.4 mutates these containers in place when replacing the current branch.
+// Snapshot only container structure, not the potentially large message payloads.
+function snapshot(manager: Manager) {
+  const state = Object.fromEntries(Object.entries(manager).map(([key, value]) => [key,
+    value instanceof Map ? new Map(value) : Array.isArray(value) ? [...value] : value,
+  ]));
+  return () => Object.assign(manager, state);
+}
+
 /** Version-bound interception, not upstream source changes. Not enabled by importing this module. */
 export function installSessionManagerLocks(
   managerClass: { prototype: Manager },
   options: { directory: string; owner: string; piVersion: string },
 ) {
-  if (options.piVersion !== "0.84.4") throw new Error("Unsupported Pi SessionManager version");
+  if (VERSION !== "0.84.4" || options.piVersion !== VERSION || managerClass !== SessionManager) {
+    throw new Error("Unsupported Pi SessionManager version or class");
+  }
   const prototype = managerClass.prototype as unknown as Record<string, Method>;
   const names = ["_setSessionFile", "newSession", "_appendEntry", "_rewriteFile", "_persist"] as const;
   const originals = new Map(names.map((name) => [name, prototype[name]]));
@@ -47,21 +62,29 @@ export function installSessionManagerLocks(
   };
   prototype._setSessionFile = function (...args) {
     if (typeof args[0] !== "string") throw new Error("Invalid Session file");
-    const key = retain(args[0]); // Before empty-file initialization or migration writes.
+    const restore = snapshot(this);
+    // Match Pi's Linux path normalization before selecting the shared lock inode.
+    const input = args[0];
+    const path = input === "~" ? homedir() : input.startsWith("~/") ? join(homedir(), input.slice(2))
+      : input.startsWith("file://") ? fileURLToPath(input) : input;
+    const key = retain(path); // Before empty-file initialization or migration writes.
     opening.add(this);
     try {
       const result = originals.get("_setSessionFile")!.apply(this, args);
       adopt(this, key);
       return result;
-    } catch (error) { drop(key); throw error; }
+    } catch (error) { restore(); drop(key); throw error; }
     finally { opening.delete(this); }
   };
   prototype.newSession = function (...args) {
-    const result = originals.get("newSession")!.apply(this, args);
-    const file = this.getSessionFile();
-    // _setSessionFile invokes newSession internally, then restores its explicit path.
-    if (!opening.has(this) && this.isPersisted() && file) adopt(this, retain(file));
-    return result;
+    const restore = snapshot(this);
+    try {
+      const result = originals.get("newSession")!.apply(this, args);
+      const file = this.getSessionFile();
+      // _setSessionFile invokes newSession internally, then restores its explicit path.
+      if (!opening.has(this) && this.isPersisted() && file) adopt(this, retain(file));
+      return result;
+    } catch (error) { restore(); throw error; }
   };
   for (const name of ["_appendEntry", "_rewriteFile", "_persist"] as const) {
     prototype[name] = function (...args) {

@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { homedir, tmpdir } from "node:os";
+import { join, relative } from "node:path";
+import { pathToFileURL } from "node:url";
 import test from "node:test";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
 import { acquireSessionLock } from "../dist/runtime/session-lock.js";
@@ -20,15 +21,19 @@ test("guarded SDK open rejects before empty-file initialization and keeps origin
   t.after(() => held.release());
   for (const bytes of ["", JSON.stringify({ type: "session", version: 3, id: "test", timestamp: new Date().toISOString(), cwd: dir }) + "\n"]) {
   writeFileSync(file, bytes);
+  for (const input of [file, pathToFileURL(file).href, `~/${relative(homedir(), file)}`]) {
   const child = spawnSync(process.execPath, ["--input-type=module", "-e", `
     import { SessionManager } from '@earendil-works/pi-coding-agent';
     import { installSessionManagerLocks } from ${JSON.stringify(subject.href)};
     installSessionManagerLocks(SessionManager, { directory: process.argv[2], owner: 'cli', piVersion: '0.84.4' });
-    try { SessionManager.open(process.argv[1]); process.exit(2); }
-    catch (error) { if (error.code !== 'session_locked') throw error; }
-  `, file, locks], { encoding: "utf8" });
+    for (const open of [() => SessionManager.open(process.argv[1]), () => SessionManager.create(process.cwd()).setSessionFile(process.argv[1])]) {
+      try { open(); process.exit(2); }
+      catch (error) { if (error.code !== 'session_locked') throw error; }
+    }
+  `, input, locks], { encoding: "utf8" });
   assert.equal(child.status, 0, child.stderr);
   assert.equal(readFileSync(file, "utf8"), bytes);
+  }
   }
   assert.equal(typeof installSessionManagerLocks, "function");
 });
@@ -82,6 +87,52 @@ test("released manager cannot write while a competing owner holds its file", asy
 test("unsupported SDK versions fail before installing hooks", async () => {
   const { installSessionManagerLocks } = await import(subject);
   assert.throws(() => installSessionManagerLocks(SessionManager, { directory: "/unused", owner: "cli", piVersion: "0.85.0" }), /Unsupported/);
+});
+
+test("a malformed target rolls back manager state and releases only the target lease", async (t) => {
+  const { installSessionManagerLocks } = await import(subject);
+  const dir = mkdtempSync(join(tmpdir(), "pi-sdk-rollback-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const locks = join(dir, "locks");
+  const guard = installSessionManagerLocks(SessionManager, { directory: locks, owner: "cli", piVersion: "0.84.4" });
+  t.after(() => guard.uninstall());
+  const manager = SessionManager.create(dir, dir);
+  manager.appendSessionInfo("original");
+  const before = { file: manager.getSessionFile(), id: manager.getSessionId(), entries: manager.getEntries() };
+  const invalid = join(dir, "invalid.jsonl");
+  writeFileSync(invalid, "not a session\n");
+  assert.throws(() => manager.setSessionFile(invalid), /not a valid/);
+  assert.deepEqual({ file: manager.getSessionFile(), id: manager.getSessionId(), entries: manager.getEntries() }, before);
+  assert.throws(() => acquireSessionLock(before.file, locks, "other"), { code: "session_locked" });
+  acquireSessionLock(invalid, locks, "other").release();
+  assert.equal(readFileSync(invalid, "utf8"), "not a session\n");
+});
+
+test("newSession lock conflict restores the previous in-memory branch", async (t) => {
+  const { installSessionManagerLocks } = await import(subject);
+  const dir = mkdtempSync(join(tmpdir(), "pi-sdk-rollback-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const locks = join(dir, "locks");
+  const guard = installSessionManagerLocks(SessionManager, { directory: locks, owner: "cli", piVersion: "0.84.4" });
+  t.after(() => guard.uninstall());
+  const manager = SessionManager.create(dir, dir);
+  manager.appendSessionInfo("original");
+  const before = { file: manager.getSessionFile(), id: manager.getSessionId(), entries: manager.getEntries() };
+  const timestamp = "2026-01-01T00:00:00.000Z";
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse(timestamp) });
+  const id = "abcdef01-2345-4678-9abc-def012345678";
+  const target = join(dir, `${timestamp.replace(/[:.]/g, "-")}_${id}.jsonl`);
+  const held = acquireSessionLock(target, locks, "rpc");
+  t.after(() => held.release());
+  assert.throws(() => manager.newSession({ id }), { code: "session_locked" });
+  assert.deepEqual({ file: manager.getSessionFile(), id: manager.getSessionId(), entries: manager.getEntries() }, before);
+  assert.throws(() => acquireSessionLock(before.file, locks, "other"), { code: "session_locked" });
+});
+
+test("a supplied version cannot authorize a foreign manager class", async () => {
+  const { installSessionManagerLocks } = await import(subject);
+  class ForeignManager extends SessionManager {}
+  assert.throws(() => installSessionManagerLocks(ForeignManager, { directory: "/unused", owner: "cli", piVersion: "0.84.4" }), /Unsupported/);
 });
 
 test("a failed switch retains the old manager and its lease", async (t) => {
