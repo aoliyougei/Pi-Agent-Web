@@ -4,6 +4,7 @@ import { isAuthorized } from "./auth.js";
 import { routeAgentRequest, type AgentRouteAdapter } from "./routes/agent.js";
 import { AgentEventChannels, routeAgentEvents } from "./routes/events.js";
 import { routeExtensionUi } from "./routes/extension-ui.js";
+import { routeFiles } from "./routes/files.js";
 import { routeSessions } from "./routes/sessions.js";
 import { routeBashOutput } from "./routes/bash-output.js";
 import { routeCustomUi } from "./routes/custom-ui.js";
@@ -45,11 +46,12 @@ export async function routeRequest(
     send(response, 200, options.version);
     return;
   }
+  if (await routeFiles(request, response, path)) return;
   if (await routeSessions(request, response, path)) return;
+  if (await routeBashOutput(request, response, path)) return;
   const agent = options.agent;
   if (agent) {
-    return routeBashOutput(request, response, path)
-      .then((handled) => handled || routeCustomUi(request, response, path, requestId, agent))
+    return routeCustomUi(request, response, path, requestId, agent)
       .then((handled) => handled || routeExtensionUi(request, response, path, requestId, agent))
       .then((uiHandled) => {
       if (uiHandled) return;

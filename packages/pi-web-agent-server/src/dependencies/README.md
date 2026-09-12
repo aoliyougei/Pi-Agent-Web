@@ -10,8 +10,17 @@ allowed-roots.ts
 api-types.ts
 atomic-file.ts
 bash-output.ts
+bounded-form-data.ts
 chat-only.ts
 custom-ui-terminal.ts
+default-cwd.ts
+directory-browser.ts
+file-access.ts
+file-dirent.ts
+file-fuzzy.ts
+file-index.ts
+file-types.ts
+file-upload.ts
 frontmatter.ts
 i18n/messages/en.ts
 i18n/messages/zh-CN.ts
@@ -32,6 +41,7 @@ project-tree.ts
 project-trust.ts
 session-export.ts
 session-file-references-core.ts
+session-file-references.ts
 session-path.ts
 session-reader.ts
 session-timing.ts
@@ -61,6 +71,7 @@ External runtime dependencies:
 @earendil-works/pi-coding-agent@0.84.4
 @earendil-works/pi-tui@0.84.4
 js-yaml
+mammoth
 proper-lockfile
 web-push
 ```

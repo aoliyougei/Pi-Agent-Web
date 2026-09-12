@@ -9,6 +9,7 @@ import {
   type AgentErrorCode,
   type NewAgentRequest,
 } from "@aoliyougei/pi-agent-contract";
+import { allowFileRoot } from "../dependencies/allowed-roots.js";
 import { RequestDeduplicator } from "../runtime/request-dedup.js";
 
 export interface AgentRouteRuntime {
@@ -109,6 +110,7 @@ export async function routeAgentRequest(
     try {
       const operation = async () => {
         const created = await agent.create(parsed);
+        allowFileRoot(parsed.cwd);
         const state = await created.runtime.send({ type: "get_state" }) as {
           model?: { id: string; provider: string };
           thinkingLevel?: string;

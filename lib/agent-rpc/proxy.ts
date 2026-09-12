@@ -4,7 +4,7 @@ import { proxyError } from "./errors";
 export type AgentFetch = (path: string, init?: RequestInit) => Promise<Response>;
 
 // Browser identity and arbitrary proxy headers never cross the service boundary.
-const REQUEST_HEADERS = ["content-type", "accept", "last-event-id", "x-request-id"];
+const REQUEST_HEADERS = ["content-type", "accept", "last-event-id", "range", "x-request-id"];
 const RESPONSE_HEADERS = ["content-type", "content-disposition", "cache-control", "x-request-id", "x-accel-buffering", "retry-after"];
 
 /** Transparent, single-attempt transport for JSON, SSE and file streams. */

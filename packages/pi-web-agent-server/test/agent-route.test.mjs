@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createAgentServer } from "../dist/server.js";
+import { getAdditionalAllowedRoots } from "../dist/dependencies/allowed-roots.js";
 
 const token = "server-secret";
 const version = {
@@ -60,6 +61,8 @@ async function body(response) {
 
 test("serves authenticated Agent create, command, state, and running routes", async (t) => {
   const agent = fakeAgent();
+  getAdditionalAllowedRoots().delete("/tmp");
+  t.after(() => getAdditionalAllowedRoots().delete("/tmp"));
   const { app, url } = await startServer(agent);
   t.after(() => app.close());
 
@@ -93,6 +96,7 @@ test("serves authenticated Agent create, command, state, and running routes", as
       thinkingLevel: "high",
     },
   });
+  assert.equal(getAdditionalAllowedRoots().has("/tmp"), true);
 });
 
 test("routes set_tools through the adapter and marks rejected prompts", async (t) => {
