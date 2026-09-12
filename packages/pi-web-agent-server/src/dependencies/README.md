@@ -22,6 +22,9 @@ file-index.ts
 file-types.ts
 file-upload.ts
 frontmatter.ts
+git-changes.ts
+git-status.ts
+git-types.ts
 i18n/messages/en.ts
 i18n/messages/zh-CN.ts
 i18n/types.ts

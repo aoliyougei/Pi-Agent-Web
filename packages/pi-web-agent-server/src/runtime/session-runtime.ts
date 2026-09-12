@@ -1837,6 +1837,15 @@ function runtimeMessageActivityMs(entry: SessionMessageEntry): number | undefine
   return Number.isNaN(timestamp) ? undefined : timestamp;
 }
 
+export function getRpcSessionOwnerships(): Array<{ cwd: string; path: string }> {
+  return [
+    ...[...getRegistry().values()]
+      .filter((session) => session.isAlive())
+      .map((session) => ({ cwd: session.cwd, path: session.sessionFile })),
+    ...[...getStartingSessionCwds().keys()].map((cwd) => ({ cwd, path: "" })),
+  ];
+}
+
 /**
  * Return live sessions that should be visible in the session list. Pi delays
  * the first JSONL flush until an assistant message exists, so an accepted new
