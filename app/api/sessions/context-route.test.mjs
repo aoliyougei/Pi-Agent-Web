@@ -8,7 +8,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createJiti } from "jiti";
 
-const routeSrc = await readFileSync(new URL("./[id]/context/route.ts", import.meta.url), "utf8");
+const publicRouteSrc = readFileSync(new URL("./[id]/context/route.ts", import.meta.url), "utf8");
+const agentRouteSrc = readFileSync(new URL("../../../packages/pi-web-agent-server/src/routes/sessions.ts", import.meta.url), "utf8");
 const jiti = createJiti(import.meta.url, {
   alias: { "@": process.cwd() },
   interopDefault: true,
@@ -16,10 +17,11 @@ const jiti = createJiti(import.meta.url, {
 });
 const { buildSessionContext } = await jiti.import("@/lib/session-reader");
 
-test("context route parses ?tail and ?before, excluding the boundary on paging", () => {
-  assert.match(routeSrc, /const tail = Number\.isFinite\(rawTail\) && rawTail > 0 \? Math\.min\(rawTail, 1000\) : 50/);
-  assert.match(routeSrc, /const before = url\.searchParams\.get\("before"\)/);
-  assert.match(routeSrc, /buildSessionContext\(sm\.getEntries\(\) as never, before \?\? leafId, \{[^}]*excludeLeaf: Boolean\(before\)/);
+test("context pagination lives in Agent Server behind a thin public proxy", () => {
+  assert.match(publicRouteSrc, /remoteSessionRoutes\.CONTEXT/);
+  assert.match(agentRouteSrc, /const tail = Number\.isFinite\(rawTail\) && rawTail > 0 \? Math\.min\(rawTail, 1000\) : 50/);
+  assert.match(agentRouteSrc, /const before = params\.get\("before"\)/);
+  assert.match(agentRouteSrc, /excludeLeaf: Boolean\(before\)/);
 });
 
 test("context route: ?before pages upward without duplicating the boundary", () => {

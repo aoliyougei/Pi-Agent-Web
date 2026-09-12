@@ -4,6 +4,7 @@ import { isAuthorized } from "./auth.js";
 import { routeAgentRequest, type AgentRouteAdapter } from "./routes/agent.js";
 import { AgentEventChannels, routeAgentEvents } from "./routes/events.js";
 import { routeExtensionUi } from "./routes/extension-ui.js";
+import { routeSessions } from "./routes/sessions.js";
 import { routeBashOutput } from "./routes/bash-output.js";
 import { routeCustomUi } from "./routes/custom-ui.js";
 import { RequestDeduplicator } from "./runtime/request-dedup.js";
@@ -13,7 +14,7 @@ function send(response: ServerResponse, status: number, body: unknown): void {
   response.end(JSON.stringify(body));
 }
 
-export function routeRequest(
+export async function routeRequest(
   request: IncomingMessage,
   response: ServerResponse,
   options: {
@@ -24,7 +25,7 @@ export function routeRequest(
     dedup?: RequestDeduplicator;
     events?: AgentEventChannels;
   },
-): void | Promise<void> {
+): Promise<void> {
   const path = new URL(request.url ?? "/", "http://internal").pathname;
   if (request.method === "GET" && path === "/internal/v1/health/live") {
     send(response, 200, { status: "ok" });
@@ -44,6 +45,7 @@ export function routeRequest(
     send(response, 200, options.version);
     return;
   }
+  if (await routeSessions(request, response, path)) return;
   const agent = options.agent;
   if (agent) {
     return routeBashOutput(request, response, path)

@@ -3,7 +3,7 @@ import { proxyAgentRequest, type AgentFetch } from "../proxy";
 type Context = { params: Promise<{ id: string }> };
 const ROOT = "/internal/v1/api/agent";
 
-async function browserResponse(response: Response): Promise<Response> {
+export async function browserResponse(response: Response): Promise<Response> {
   if (response.ok || !response.headers.get("content-type")?.includes("application/json")) return response;
   const body = await response.json().catch(() => null);
   if (!body || typeof body !== "object") return Response.json({ error: "Invalid Agent response", code: "agent_bad_gateway" }, { status: 502 });

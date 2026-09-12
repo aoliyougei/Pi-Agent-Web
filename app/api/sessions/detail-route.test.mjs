@@ -8,7 +8,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createJiti } from "jiti";
 
-const routeSrc = await readFileSync(new URL("./[id]/route.ts", import.meta.url), "utf8");
+const publicRouteSrc = readFileSync(new URL("./[id]/route.ts", import.meta.url), "utf8");
+const agentRouteSrc = readFileSync(new URL("../../../packages/pi-web-agent-server/src/routes/sessions.ts", import.meta.url), "utf8");
 const jiti = createJiti(import.meta.url, {
   alias: { "@": process.cwd() },
   interopDefault: true,
@@ -16,14 +17,12 @@ const jiti = createJiti(import.meta.url, {
 });
 const { buildSessionContext } = await jiti.import("@/lib/session-reader");
 
-test("detail route parses ?tail: default 50, NaN-safe, capped at 1000", () => {
-  assert.match(routeSrc, /const rawTail = Number\(searchParams\.get\("tail"\)\)/);
-  assert.match(routeSrc, /Math\.min\(rawTail, 1000\)/);
-  assert.match(routeSrc, /Number\.isFinite\(rawTail\) && rawTail > 0 \? Math\.min\(rawTail, 1000\) : 50/);
-  assert.match(routeSrc, /buildSessionContext\(entries as never, leafId, \{[^}]*tail,[^}]*sessionId: id[^}]*\}\)/);
-  assert.match(routeSrc, /computeSessionStats\(entries as unknown as SessionEntry\[\]\)/);
-  assert.match(routeSrc, /messageCount: stats\.totalMessages/);
-  assert.match(routeSrc, /stats,/);
+test("detail pagination and stats live in Agent Server behind a thin public proxy", () => {
+  assert.match(publicRouteSrc, /remoteSessionRoutes\.DETAIL/);
+  assert.match(agentRouteSrc, /const rawTail = Number\(params\.get\("tail"\)\)/);
+  assert.match(agentRouteSrc, /Number\.isFinite\(rawTail\) && rawTail > 0 \? Math\.min\(rawTail, 1000\) : 50/);
+  assert.match(agentRouteSrc, /computeSessionStats\(entries as unknown as SessionEntry\[\]\)/);
+  assert.match(agentRouteSrc, /messageCount: stats\.totalMessages/);
 });
 
 test("detail route bounds history to the tail window (default 50 over 5000 entries)", () => {

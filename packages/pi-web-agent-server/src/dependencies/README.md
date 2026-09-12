@@ -18,6 +18,7 @@ i18n/messages/zh-CN.ts
 i18n/types.ts
 image-attachments.ts
 middleware/ssh-remote-status/ssh-environment.ts
+middleware/ssh-remote-status/workspace-model.ts
 model-scope.ts
 models-cache.ts
 normalize.ts
@@ -27,10 +28,14 @@ pi-types.ts
 powershell-settings.ts
 project-command-env.ts
 project-identity.ts
+project-tree.ts
 project-trust.ts
+session-export.ts
 session-file-references-core.ts
 session-path.ts
 session-reader.ts
+session-timing.ts
+session-title.ts
 session-tool-selection.ts
 startup-preferences.ts
 subagent-extension.ts
