@@ -27,6 +27,10 @@ The authenticated bash-output endpoint now lives in Agent Server. It reuses migr
 
 For the real integration test, build Contract and Server before `npm test` because it intentionally loads the packaged Server dist rather than mocking its implementation.
 
-## Next gate — not part of Task 9 completion
+## Phase 2 acceptance
 
-No public `app/api/agent/*` handler was switched and `lib/rpc-manager.ts` remains intact. Vendor artifacts and images still contain the Task 8 checkpoint, not these new server endpoints. Phase 2 acceptance must repackage/import/rebuild and run the full behavior matrix before Phase 3 activates the remote BFF and migrates remaining session/files/config/management APIs. No Phase 2 completion, browser deployment or image release is claimed here.
+The deterministic Agent Server artifact was refreshed and imported into the RPC repository (`sha256:eb1da25c9d3bdb2e7cb136fdaa52674c73b83eedcd7f5c63c1bcd61338f90e49`). Docker acceptance passed for runtime commands, prompt lifecycle, SSE replay/overflow resync, ordinary Extension UI, `ctx.ui.custom()` keyboard input, CLI/RPC Session locking, Secret enforcement, authenticated two-container readiness, Agent outage, and recovery.
+
+Fresh source verification: Contract **7/7**, Agent Server **262/262**, Web **863/863**, TypeScript clean, lint **0 errors / 12 existing warnings**. Pi source remained byte-identical across **1410 files**, and the installed Pi dist retained **877 files**. The frozen v0.2.5 compatibility tests are included in the passing suite; a fresh legacy-image rebuild for an additional direct comparison was blocked by repeated `ai-gateway.vercel.sh` DNS failures during upstream model-data hydration.
+
+No public `app/api/agent/*` handler was switched and `lib/rpc-manager.ts` remains intact. `pi-agent-web-handshake:0.1.0-dev` remains labeled `io.pi-agent.release-ready=false`; no final `pi-agent-web:0.1.0` image exists. Phase 3 is the next gate for remote BFF activation and migration of remaining session/files/config/management APIs.
