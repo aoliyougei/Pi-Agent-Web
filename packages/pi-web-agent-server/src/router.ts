@@ -8,6 +8,7 @@ import { routeExtensionUi } from "./routes/extension-ui.js";
 import { routeFiles } from "./routes/files.js";
 import { routeGit } from "./routes/git.js";
 import { routeModels } from "./routes/models.js";
+import { routeResources, type ResourceAdapter } from "./routes/resources.js";
 import { routeSessions } from "./routes/sessions.js";
 import { routeWorktrees } from "./routes/worktrees.js";
 import { routeBashOutput } from "./routes/bash-output.js";
@@ -28,6 +29,7 @@ export async function routeRequest(
     ready: () => boolean;
     agent?: AgentRouteAdapter;
     modelAuth?: ModelAuthAdapter;
+    resources?: ResourceAdapter;
     dedup?: RequestDeduplicator;
     events?: AgentEventChannels;
   },
@@ -53,6 +55,7 @@ export async function routeRequest(
   }
   if (await routeAuth(request, response, path, options.modelAuth)) return;
   if (await routeModels(request, response, path)) return;
+  if (await routeResources(request, response, path, options.resources)) return;
   if (await routeFiles(request, response, path)) return;
   if (await routeGit(request, response, path)) return;
   if (await routeWorktrees(request, response, path)) return;

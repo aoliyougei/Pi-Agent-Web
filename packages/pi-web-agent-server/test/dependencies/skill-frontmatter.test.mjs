@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { parseFrontmatter } from "@earendil-works/pi-coding-agent";
 
-import { setDisableModelInvocation } from "./skill-frontmatter.ts";
+import { setDisableModelInvocation } from "../../src/dependencies/skill-frontmatter.ts";
 
 describe("setDisableModelInvocation", () => {
   const withFrontmatter = "---\nname: my-skill\ndescription: Does things\n---\n\nBody text.\n";

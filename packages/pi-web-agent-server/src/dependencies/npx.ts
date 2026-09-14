@@ -38,6 +38,7 @@ export interface RunNpxOptions {
   timeout?: number;
   cwd?: string;
   env?: NodeJS.ProcessEnv;
+  signal?: AbortSignal;
 }
 
 export interface RunNpxResult {
@@ -58,5 +59,6 @@ export async function runNpx(args: string[], opts: RunNpxOptions = {}): Promise<
     timeout: opts.timeout,
     cwd: opts.cwd,
     env: opts.env,
+    signal: opts.signal,
   });
 }

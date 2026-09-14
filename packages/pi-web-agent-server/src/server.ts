@@ -4,6 +4,7 @@ import type { AgentVersion } from "@aoliyougei/pi-agent-contract";
 import { routeRequest } from "./router.js";
 import type { AgentRouteAdapter } from "./routes/agent.js";
 import type { ModelAuthAdapter } from "./routes/auth.js";
+import type { ResourceAdapter } from "./routes/resources.js";
 import { AgentEventChannels } from "./routes/events.js";
 import { RequestDeduplicator } from "./runtime/request-dedup.js";
 
@@ -19,6 +20,7 @@ export function createAgentServer(options: {
   version: AgentVersion;
   agent?: AgentRouteAdapter;
   modelAuth?: ModelAuthAdapter;
+  resources?: ResourceAdapter;
   eventBufferCapacity?: number;
 }): AgentServer {
   const eventBufferCapacity = options.eventBufferCapacity ?? 1_000;
