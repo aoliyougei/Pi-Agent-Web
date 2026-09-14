@@ -3,6 +3,7 @@ import type { AddressInfo } from "node:net";
 import type { AgentVersion } from "@aoliyougei/pi-agent-contract";
 import { routeRequest } from "./router.js";
 import type { AgentRouteAdapter } from "./routes/agent.js";
+import type { ModelAuthAdapter } from "./routes/auth.js";
 import { AgentEventChannels } from "./routes/events.js";
 import { RequestDeduplicator } from "./runtime/request-dedup.js";
 
@@ -17,6 +18,7 @@ export function createAgentServer(options: {
   token: string;
   version: AgentVersion;
   agent?: AgentRouteAdapter;
+  modelAuth?: ModelAuthAdapter;
   eventBufferCapacity?: number;
 }): AgentServer {
   const eventBufferCapacity = options.eventBufferCapacity ?? 1_000;

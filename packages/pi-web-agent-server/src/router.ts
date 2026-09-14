@@ -2,10 +2,12 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { agentError, type AgentVersion } from "@aoliyougei/pi-agent-contract";
 import { isAuthorized } from "./auth.js";
 import { routeAgentRequest, type AgentRouteAdapter } from "./routes/agent.js";
+import { routeAuth, type ModelAuthAdapter } from "./routes/auth.js";
 import { AgentEventChannels, routeAgentEvents } from "./routes/events.js";
 import { routeExtensionUi } from "./routes/extension-ui.js";
 import { routeFiles } from "./routes/files.js";
 import { routeGit } from "./routes/git.js";
+import { routeModels } from "./routes/models.js";
 import { routeSessions } from "./routes/sessions.js";
 import { routeWorktrees } from "./routes/worktrees.js";
 import { routeBashOutput } from "./routes/bash-output.js";
@@ -25,6 +27,7 @@ export async function routeRequest(
     version: AgentVersion;
     ready: () => boolean;
     agent?: AgentRouteAdapter;
+    modelAuth?: ModelAuthAdapter;
     dedup?: RequestDeduplicator;
     events?: AgentEventChannels;
   },
@@ -48,6 +51,8 @@ export async function routeRequest(
     send(response, 200, options.version);
     return;
   }
+  if (await routeAuth(request, response, path, options.modelAuth)) return;
+  if (await routeModels(request, response, path)) return;
   if (await routeFiles(request, response, path)) return;
   if (await routeGit(request, response, path)) return;
   if (await routeWorktrees(request, response, path)) return;
