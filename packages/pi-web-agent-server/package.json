@@ -45,6 +45,8 @@
   "devDependencies": {
     "@types/fs-ext": "2.0.3",
     "@types/node": "^25",
+    "@types/proper-lockfile": "4.1.4",
+    "@types/web-push": "^3.6.4",
     "typescript": "^5"
   }
 }

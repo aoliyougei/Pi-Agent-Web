@@ -1,0 +1,9 @@
+.git
+.next
+node_modules
+*.tgz
+Dockerfile.handshake
+build-handshake-image.sh
+docs
+source
+vendor

@@ -63,6 +63,13 @@ test("serves authenticated Agent create, command, state, and running routes", as
   const agent = fakeAgent();
   getAdditionalAllowedRoots().delete("/tmp");
   t.after(() => getAdditionalAllowedRoots().delete("/tmp"));
+  let creating = false;
+  agent.create = async () => { creating = true; return { id: "new-id", runtime: agent.runtime }; };
+  const send = agent.runtime.send;
+  agent.runtime.send = async (command) => {
+    if (creating) assert.equal(getAdditionalAllowedRoots().has("/tmp"), true, "cwd must be allowed before the first Runtime command");
+    return send(command);
+  };
   const { app, url } = await startServer(agent);
   t.after(() => app.close());
 

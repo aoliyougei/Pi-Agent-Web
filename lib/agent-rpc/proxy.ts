@@ -46,7 +46,7 @@ export async function proxyAgentRequest(
   }
 }
 
-async function readJsonBody(request: Request): Promise<ArrayBuffer | null> {
+export async function readJsonBody(request: Request): Promise<ArrayBuffer | null> {
   const reader = request.body!.getReader();
   const chunks: Uint8Array[] = [];
   let bytes = 0;

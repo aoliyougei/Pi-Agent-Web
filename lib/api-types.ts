@@ -1,5 +1,11 @@
-import type { ResourceDiagnostic } from "@earendil-works/pi-coding-agent";
 import type { SubagentProfile } from "./subagents";
+
+export interface ResourceDiagnostic {
+  type: "warning" | "error";
+  message: string;
+  path?: string;
+  source?: string;
+}
 
 export interface SubagentProfilesResponse {
   profiles: SubagentProfile[];

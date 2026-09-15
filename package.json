@@ -17,11 +17,7 @@
   "engines": {
     "node": ">=22.19.0"
   },
-  "bin": {
-    "pi-web": "bin/pi-web.js"
-  },
   "files": [
-    "bin",
     ".next",
     "!.next/cache",
     "!.next/dev",
@@ -42,29 +38,21 @@
     "release": "npm version patch --no-git-tag-version && npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@earendil-works/pi-agent-core": "0.84.4",
-    "@earendil-works/pi-ai": "0.84.4",
-    "@earendil-works/pi-coding-agent": "0.84.4",
-    "@earendil-works/pi-tui": "0.84.4",
+    "@aoliyougei/pi-agent-contract": "0.1.0",
     "ansi_up": "^6.0.6",
     "js-yaml": "^5.2.3",
     "next": "16.3.1",
-    "proper-lockfile": "4.1.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "remark-frontmatter": "^5.0.0",
-    "undici": "8.10.0",
-    "web-push": "^3.6.7"
+    "remark-frontmatter": "^5.0.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25",
-    "@types/proper-lockfile": "4.1.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.13",
-    "@types/web-push": "^3.6.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "jiti": "^2.7.0",
