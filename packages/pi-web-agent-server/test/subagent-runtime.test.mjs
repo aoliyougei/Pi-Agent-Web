@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createJiti } from "jiti";
 
-const { createSubagentController } = await createJiti(import.meta.url).import("../../src/dependencies/subagent-runtime.ts");
+const { createSubagentController } = await createJiti(import.meta.url).import("../src/runtime/subagents.ts");
 
 function completedRun() {
   return {

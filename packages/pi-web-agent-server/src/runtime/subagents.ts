@@ -8,14 +8,14 @@ import {
   SettingsManager,
   type ModelRuntime,
 } from "@earendil-works/pi-coding-agent";
-import type { AgentSessionLike } from "./pi-types.js";
+import type { AgentSessionLike } from "../dependencies/pi-types.js";
 import {
   subagentFinalText,
   subagentToolDetails,
   type StartSubagentRequest,
   type SubagentExecution,
   type SubagentExtensionRuntime,
-} from "./subagent-extension.js";
+} from "../dependencies/subagent-extension.js";
 import {
   readSubagentRun,
   resolveSubagentProfile,
@@ -26,13 +26,13 @@ import {
   type SubagentMetadata,
   type SubagentResultMetadata,
   type SubagentRunInfo,
-} from "./subagents.js";
-import type { SessionEntry } from "./types.js";
-import { buildSubagentPromptPlan } from "./subagent-prompt.js";
-import { appendSubagentInputFiles, loadSubagentInputFiles } from "./subagent-input.js";
-import { projectTrustReloadOptions } from "./project-trust.js";
-import { resolveShellTools } from "./powershell-settings.js";
-import { isBuiltInSubagentsEnabled } from "./subagent-settings.js";
+} from "../dependencies/subagents.js";
+import type { SessionEntry } from "../dependencies/types.js";
+import { buildSubagentPromptPlan } from "../dependencies/subagent-prompt.js";
+import { appendSubagentInputFiles, loadSubagentInputFiles } from "../dependencies/subagent-input.js";
+import { projectTrustReloadOptions } from "../dependencies/project-trust.js";
+import { resolveShellTools } from "../dependencies/powershell-settings.js";
+import { isBuiltInSubagentsEnabled } from "../dependencies/subagent-settings.js";
 
 interface HostSession {
   readonly inner: AgentSessionLike;

@@ -54,7 +54,6 @@ startup-preferences.ts
 subagent-extension.ts
 subagent-input.ts
 subagent-prompt.ts
-subagent-runtime.ts
 subagent-settings.ts
 subagents.ts
 tool-presets.ts

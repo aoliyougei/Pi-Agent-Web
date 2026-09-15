@@ -43,7 +43,7 @@ import {
   readSubagentSessionResources,
   SUBAGENT_CONTROL_TOOL_NAMES,
 } from "../dependencies/subagents.js";
-import { createSubagentController } from "../dependencies/subagent-runtime.js";
+import { createSubagentController } from "./subagents.js";
 import { isBuiltInSubagentsEnabled } from "../dependencies/subagent-settings.js";
 import { resolveShellTools } from "../dependencies/powershell-settings.js";
 import { CHAT_ONLY_RESOURCE_LOADER_OPTIONS, contextFilesSystemPrompt } from "../dependencies/chat-only.js";

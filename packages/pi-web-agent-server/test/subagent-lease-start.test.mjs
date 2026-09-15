@@ -7,7 +7,7 @@ import test from "node:test";
 const dir = mkdtempSync(join(tmpdir(), "subagent-lease-"));
 process.env.PI_CODING_AGENT_DIR = join(dir, "agent");
 const { startRpcSession } = await import("../dist/runtime/session-runtime.js");
-const { createSubagentController } = await import("../dist/dependencies/subagent-runtime.js");
+const { createSubagentController } = await import("../dist/runtime/subagents.js");
 const { acquireSessionLock } = await import("../dist/runtime/session-lock.js");
 
 test("subagent model validation failure releases the lease acquired before initialization", async (t) => {
