@@ -1,0 +1,59 @@
+services:
+  agent:
+    image: pi-agent-rpc:0.1.0
+    user: "1000:1000"
+    restart: unless-stopped
+    expose:
+      - 8080
+    environment:
+      PI_AGENT_RPC_TOKEN_FILE: /run/secrets/pi-agent-rpc-token
+    secrets:
+      - source: rpc-token
+        target: pi-agent-rpc-token
+        uid: "1000"
+        gid: "1000"
+        mode: 0400
+    volumes:
+      - ./data/workspace:/app
+      - ./data/pi:/home/node/.pi
+    networks:
+      - agent-rpc
+      - agent-egress
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    image: pi-agent-web:0.1.0
+    user: "1000:1000"
+    restart: unless-stopped
+    depends_on:
+      agent:
+        condition: service_healthy
+    ports:
+      - "${PI_AGENT_WEB_PORT:-30141}:30141"
+    environment:
+      PI_AGENT_RPC_URL: http://agent:8080
+      PI_AGENT_RPC_TOKEN_FILE: /run/secrets/pi-agent-rpc-token
+    secrets:
+      - source: rpc-token
+        target: pi-agent-rpc-token
+        uid: "1000"
+        gid: "1000"
+        mode: 0400
+    networks:
+      - agent-rpc
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+secrets:
+  rpc-token:
+    file: ./secrets/pi-agent-rpc-token
+
+networks:
+  agent-rpc:
+    internal: true
+  agent-egress: {}
