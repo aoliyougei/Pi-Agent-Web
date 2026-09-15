@@ -1,0 +1,4 @@
+import assert from "node:assert/strict";import test from "node:test";import {resolveRemotePath} from "../../../src/dependencies/middleware/ssh-remote-status/remote-path-security.ts";
+test("keeps unix paths within root",()=>{assert.equal(resolveRemotePath({platform:"unix",root:"/srv/app",input:"src"}),"/srv/app/src");assert.throws(()=>resolveRemotePath({platform:"unix",root:"/srv/app",input:"../etc"}));assert.throws(()=>resolveRemotePath({platform:"unix",root:"/srv/app",input:"/etc"}))});
+test("keeps windows paths within root",()=>{assert.equal(resolveRemotePath({platform:"windows",root:"C:\\Work\\app",input:"src"}),"C:\\Work\\app\\src");assert.throws(()=>resolveRemotePath({platform:"windows",root:"C:\\Work\\app",input:"..\\secret"}))});
+test("rejects control characters and oversized remote paths",()=>{for(const input of ["a\0b","a\nb","a\rb","x".repeat(4097)])assert.throws(()=>resolveRemotePath({platform:"unix",root:"/srv/app",input}),/invalid/i)});

@@ -10,6 +10,7 @@ import { routeGit } from "./routes/git.js";
 import { routeModels } from "./routes/models.js";
 import { routeResources, type ResourceAdapter } from "./routes/resources.js";
 import { routeSessions } from "./routes/sessions.js";
+import { routeSsh } from "./routes/ssh.js";
 import { routeSubagents } from "./routes/subagents.js";
 import { routeWorktrees } from "./routes/worktrees.js";
 import { routeBashOutput } from "./routes/bash-output.js";
@@ -61,6 +62,7 @@ export async function routeRequest(
   if (await routeGit(request, response, path)) return;
   if (await routeWorktrees(request, response, path)) return;
   if (await routeSubagents(request, response, path)) return;
+  if (await routeSsh(request, response, path)) return;
   if (await routeSessions(request, response, path)) return;
   if (await routeBashOutput(request, response, path)) return;
   const agent = options.agent;

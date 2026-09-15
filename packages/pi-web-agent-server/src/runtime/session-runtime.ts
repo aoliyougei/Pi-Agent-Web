@@ -938,7 +938,8 @@ export class SessionRuntime {
         const hasUserBashHandler = typeof this.inner.extensionRunner.hasHandlers === "function"
           && typeof this.inner.extensionRunner.emitUserBash === "function"
           && this.inner.extensionRunner.hasHandlers("user_bash");
-        if ((savedEnvironment.environment?.mode === "ssh" || savedEnvironment.warning) && !hasUserBashHandler) {
+        const requiresRemoteBash = Boolean(savedEnvironment.environment?.mode === "ssh" || savedEnvironment.warning);
+        if (requiresRemoteBash && !hasUserBashHandler) {
           throw new Error("This session is configured for SSH, but no SSH user_bash handler is available. The command was not executed locally.");
         }
         const eventResult = hasUserBashHandler
@@ -953,6 +954,9 @@ export class SessionRuntime {
           this.inner.recordBashResult(command.command as string, eventResult.result, { excludeFromContext });
           this.persistBashOnlySession();
           return eventResult.result;
+        }
+        if (requiresRemoteBash && !eventResult?.operations) {
+          throw new Error("This session is configured for SSH, but no SSH user_bash handler is available. The command was not executed locally.");
         }
         const execution = this.inner.executeBash(
           command.command as string,

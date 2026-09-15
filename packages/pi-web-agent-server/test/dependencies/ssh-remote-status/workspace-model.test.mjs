@@ -1,0 +1,4 @@
+import assert from"node:assert/strict";import test from"node:test";import{workspaceIdentityFromEnvironment}from"../../../src/dependencies/middleware/ssh-remote-status/workspace-model.ts";
+const session={id:"s",path:"s.jsonl",cwd:"/app",projectRoot:"/app",projectKey:"project:/app",created:"",modified:"",messageCount:1,firstMessage:""};
+test("local identity preserves existing project key",()=>{assert.deepEqual(workspaceIdentityFromEnvironment(session,{environment:null}),{workspaceKind:"local",workspaceKey:"project:/app",workspaceLabel:"/app"})});
+test("ssh identity separates the same local anchor",()=>{assert.deepEqual(workspaceIdentityFromEnvironment(session,{environment:{mode:"ssh",stateVersion:2,target:"devbox",port:2201,remoteCwd:"/srv/project",remotePlatform:"unix",remoteShell:"bash"}}),{workspaceKind:"ssh",workspaceKey:"ssh:devbox:2201:/srv/project",workspaceLabel:"devbox:2201:/srv/project"})});

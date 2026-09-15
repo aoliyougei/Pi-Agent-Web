@@ -82,6 +82,7 @@ type BashResultLike = {
 };
 
 interface ExtensionRunnerLike {
+  getToolDefinition?(name: string): unknown;
   getRegisteredCommands(): Array<{
     invocationName: string;
     description?: string;

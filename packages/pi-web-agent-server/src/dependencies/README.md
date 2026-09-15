@@ -29,6 +29,8 @@ i18n/messages/en.ts
 i18n/messages/zh-CN.ts
 i18n/types.ts
 image-attachments.ts
+middleware/ssh-remote-status/remote-path-security.ts
+middleware/ssh-remote-status/remote-tool-bridge.ts
 middleware/ssh-remote-status/ssh-environment.ts
 middleware/ssh-remote-status/workspace-model.ts
 model-scope.ts
