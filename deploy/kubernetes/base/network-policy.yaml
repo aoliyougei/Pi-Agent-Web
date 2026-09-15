@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pi-agent-rpc-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pi-agent-rpc
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pi-agent-web
+      ports:
+        - protocol: TCP
+          port: 8080

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pi-agent-web
+  labels:
+    app.kubernetes.io/name: pi-agent-web
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: pi-agent-web
+  ports:
+    - name: http
+      port: 30141
+      targetPort: http
+      protocol: TCP

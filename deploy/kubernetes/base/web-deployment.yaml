@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pi-agent-web
+  labels:
+    app.kubernetes.io/name: pi-agent-web
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pi-agent-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pi-agent-web
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: web
+          image: pi-agent-web:0.1.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: PI_AGENT_RPC_URL
+              value: http://pi-agent-rpc:8080
+            - name: PI_AGENT_RPC_TOKEN_FILE
+              value: /run/secrets/pi-agent-rpc-token
+          ports:
+            - name: http
+              containerPort: 30141
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/health/live
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/health/ready
+              port: http
+          volumeMounts:
+            - name: rpc-token
+              mountPath: /run/secrets/pi-agent-rpc-token
+              subPath: pi-agent-rpc-token
+              readOnly: true
+      volumes:
+        - name: rpc-token
+          secret:
+            secretName: pi-agent-rpc-token
+            optional: false
+            defaultMode: 288

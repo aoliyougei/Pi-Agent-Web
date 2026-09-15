@@ -1,0 +1,14 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pi-agent-web
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`pi-agent.example.com`)
+      services:
+        - name: pi-agent-web
+          port: 30141
+  tls: {}
