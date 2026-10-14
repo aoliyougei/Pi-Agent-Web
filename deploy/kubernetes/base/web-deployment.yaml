@@ -20,6 +20,7 @@ spec:
         app.kubernetes.io/name: pi-agent-web
     spec:
       automountServiceAccountToken: false
+      enableServiceLinks: false
       securityContext:
         fsGroup: 1000
         seccompProfile:

@@ -28,6 +28,7 @@ function assertSafePod(deployment) {
   assert.equal(pod.securityContext.fsGroup, 1000);
   assert.deepEqual(pod.securityContext.seccompProfile, { type: "RuntimeDefault" });
   assert.equal(pod.automountServiceAccountToken, false);
+  assert.equal(pod.enableServiceLinks, false);
   assert.equal(app.securityContext.runAsNonRoot, true);
   assert.equal(app.securityContext.runAsUser, 1000);
   assert.equal(app.securityContext.runAsGroup, 1000);
