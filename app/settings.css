@@ -1149,3 +1149,27 @@
     }
   }
 }
+
+/* Pi Agent connection profiles */
+.agent-backends { height: 100%; min-height: 0; overflow-y: auto; }
+.agent-backend-notice { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 100; max-width: calc(100% - 24px); padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-panel); color: var(--text); display: flex; align-items: center; gap: 12px; }
+.agent-backend-notice button { flex-shrink: 0; color: var(--accent); cursor: pointer; }
+.agent-backend-grid { display: grid; grid-template-columns: repeat(auto-fill, 96px); gap: 20px 18px; margin: 20px 0; }
+.agent-backend-tile { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px; color: var(--text); cursor: pointer; touch-action: pan-y; }
+.agent-backend-icon { width: 72px; height: 72px; border-radius: 18px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid var(--border); background: var(--bg-hover); color: var(--accent); }
+.agent-backend-tile[aria-pressed="true"] .agent-backend-icon { border-color: var(--accent); }
+.agent-backend-name { width: 100%; font-size: 12px; text-align: center; overflow-wrap: anywhere; }
+.agent-backend-check { position: absolute; right: -4px; bottom: -4px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: var(--bg-panel); font-size: 13px; }
+.agent-backend-add-tile .agent-backend-icon { background: color-mix(in srgb, var(--text-muted) 18%, var(--bg-panel)); color: var(--text-muted); font-size: 32px; font-weight: 300; }
+.agent-backend-menu { position: fixed; z-index: 1200; width: 160px; padding: 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-panel); color: var(--text); box-shadow: 0 6px 24px #0003; }
+.agent-backend-menu button { display: block; width: 100%; padding: 8px 12px; text-align: left; border-radius: 4px; cursor: pointer; }
+.agent-backend-menu button:hover, .agent-backend-menu button:focus-visible { background: var(--bg-hover); outline: 2px solid var(--accent); }
+.agent-backend-menu button:last-child { color: var(--text); }
+.agent-backend-actions { display: flex; gap: 12px; padding: 12px; flex-wrap: wrap; }
+.agent-backend-actions button { border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; cursor: pointer; background: var(--bg-hover); color: var(--text); }
+.agent-backends button:disabled { cursor: wait; opacity: .6; }
+.agent-backends button:focus-visible, .agent-backends input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.agent-backend-form { display: grid; gap: 14px; margin-top: 20px; max-width: 480px; }
+.agent-backend-form label { display: grid; gap: 6px; font-size: 13px; }
+.agent-backend-form input { min-width: 0; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; background: var(--bg); color: var(--text); }
+.agent-backend-form .agent-backend-actions { padding: 0; }

@@ -10,8 +10,8 @@ test("web liveness is independent from agent availability", () => {
   assert.doesNotMatch(live, /agentFetch|checkAgentCompatibility/);
 });
 
-test("web readiness requires an authenticated compatible agent", () => {
-  assert.match(ready, /checkAgentCompatibility/);
-  assert.match(ready, /agentFetch\("\/internal\/v1\/version"\)/);
+test("Web readiness keeps backend configuration accessible even with no working Agent", () => {
+  assert.match(ready, /listBackends\(\)/);
+  assert.doesNotMatch(ready, /agentFetch|checkAgentCompatibility/);
   assert.match(ready, /status: 503/);
 });

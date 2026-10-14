@@ -31,11 +31,12 @@ test("Compose exposes only Web and keeps Agent data on the internal service", as
   assert.equal(agent.ports, undefined);
   assert.deepEqual(web.ports, ["${PI_AGENT_WEB_PORT:-30141}:30141"]);
   assert.deepEqual(mounts(agent), ["./data/workspace:/app", "./data/pi:/home/node/.pi"]);
-  assert.deepEqual(web.volumes, undefined);
+  assert.deepEqual(mounts(web), ["web-config:/var/lib/pi-agent-web"]);
+  assert.equal(web.environment.PI_WEB_CONFIG_DIR, "/var/lib/pi-agent-web/backends");
   assert.deepEqual(agent.networks.sort(), ["agent-egress", "agent-rpc"]);
-  assert.deepEqual(web.networks, ["agent-rpc"]);
+  assert.deepEqual(web.networks, ["agent-rpc", "web-egress"]);
   assert.equal(compose.networks["agent-rpc"].internal, true);
-  assert.deepEqual(web.depends_on, { agent: { condition: "service_healthy" } });
+  assert.equal(web.depends_on, undefined);
   assert.equal(agent.restart, "unless-stopped");
   assert.equal(web.restart, "unless-stopped");
   for (const service of [agent, web]) {

@@ -7,10 +7,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 0
-      maxSurge: 1
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: pi-agent-web
@@ -23,6 +20,7 @@ spec:
       enableServiceLinks: false
       securityContext:
         fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -42,6 +40,8 @@ spec:
               value: http://pi-agent-rpc:8080
             - name: PI_AGENT_RPC_TOKEN_FILE
               value: /run/secrets/pi-agent-rpc-token
+            - name: PI_WEB_CONFIG_DIR
+              value: /var/lib/pi-agent-web/backends
           ports:
             - name: http
               containerPort: 30141
@@ -55,11 +55,16 @@ spec:
               path: /api/health/ready
               port: http
           volumeMounts:
+            - name: web-config
+              mountPath: /var/lib/pi-agent-web
             - name: rpc-token
               mountPath: /run/secrets/pi-agent-rpc-token
               subPath: pi-agent-rpc-token
               readOnly: true
       volumes:
+        - name: web-config
+          persistentVolumeClaim:
+            claimName: pi-agent-web-config
         - name: rpc-token
           secret:
             secretName: pi-agent-rpc-token

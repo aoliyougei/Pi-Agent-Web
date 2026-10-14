@@ -5,7 +5,7 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url).pathname;
 const sourceExtensions = new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]);
-const excludedDirectories = new Set([".git", ".next", ".worktrees", "docs", "node_modules", "packages", "public", "scripts", "source", "tests"]);
+const excludedDirectories = new Set([".git", ".next", ".worktrees", "docs", "deploy", "node_modules", "packages", "public", "scripts", "source", "tests"]);
 const excludedFiles = new Set([
   "next.config.ts", // build-time reads only package metadata and static Next configuration
   "tailwind.config.ts",
@@ -39,19 +39,27 @@ test("production Web source has no Agent SDK, data filesystem, or local executio
   const violations = [];
   for (const [name, source] of await productionSources()) {
     for (const [kind, pattern] of forbidden) {
-      if (kind === "filesystem runtime" && name === "lib/agent-rpc/config.ts") continue; // fixed Secret file only
+      if (kind === "filesystem runtime" && ["lib/agent-rpc/token.ts", "lib/agent-rpc/backends.ts"].includes(name)) continue; // private Web config and deployment Secret only
       if (pattern.test(source)) violations.push(`${name}: ${kind}`);
     }
   }
   assert.deepEqual(violations, []);
 });
 
-test("the sole Web filesystem exception reads only a no-follow Secret descriptor", async () => {
-  const source = await readFile(join(root, "lib/agent-rpc/config.ts"), "utf8");
+test("the deployment Secret reader uses a no-follow descriptor", async () => {
+  const source = await readFile(join(root, "lib/agent-rpc/token.ts"), "utf8");
   assert.match(source, /constants\.O_NOFOLLOW/);
   assert.match(source, /await file\.stat\(\)/);
   assert.doesNotMatch(source, /await stat\(path\)/);
   assert.equal((source.match(/from "node:fs\/promises"/g) ?? []).length, 1);
+});
+
+test("Web config storage is private and does not access Agent data", async () => {
+  const source = await readFile(join(root, "lib/agent-rpc/backends.ts"), "utf8");
+  assert.match(source, /PI_WEB_CONFIG_DIR/);
+  assert.match(source, /mode: 0o700/);
+  assert.match(source, /O_NOFOLLOW, 0o600/);
+  assert.doesNotMatch(source, /SessionManager|child_process|\.pi\//);
 });
 
 test("Web manifest excludes Agent-only runtime dependencies and process-spawning bins", async () => {

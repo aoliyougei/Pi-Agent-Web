@@ -13,7 +13,7 @@ export class AgentRpcError extends Error {
 
 export function createAgentClient(options: { baseUrl: string; token: string }) {
   const base = new URL(options.baseUrl);
-  if (base.protocol !== "http:" || base.username || base.password || base.pathname !== "/" || base.search || base.hash) {
+  if (!["http:", "https:"].includes(base.protocol) || base.username || base.password || base.pathname !== "/" || base.search || base.hash) {
     throw new Error("Invalid agent RPC URL");
   }
   return {
@@ -28,7 +28,7 @@ export function createAgentClient(options: { baseUrl: string; token: string }) {
       headers.set("x-pi-agent-protocol", String(PROTOCOL_VERSION));
       if (!headers.has("x-request-id")) headers.set("x-request-id", randomUUID());
       try {
-        return await fetch(target, { ...init, headers });
+        return await fetch(target, { ...init, headers, redirect: "manual" });
       } catch {
         throw new AgentRpcError();
       }

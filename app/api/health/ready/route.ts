@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { agentFetch, checkAgentCompatibility } from "@/lib/agent-rpc";
+import { listBackends } from "@/lib/agent-rpc/backends";
 
 export async function GET() {
   try {
-    const response = await agentFetch("/internal/v1/version");
-    if (!response.ok) throw new Error();
-    checkAgentCompatibility(await response.json());
+    // An offline/deleted Agent must not hide the settings needed to reconnect.
+    await listBackends();
     return NextResponse.json({ status: "ok" });
   } catch {
     return NextResponse.json({ status: "unavailable" }, { status: 503 });

@@ -13,6 +13,7 @@ import { ModelsConfig } from "./ModelsConfig";
 import { SkillsConfig } from "./SkillsConfig";
 import { PluginsConfig } from "./PluginsConfig";
 import { ConfigSwitch } from "./SettingsUi";
+import { AgentBackendsConfig, AgentLogo } from "./AgentBackendsConfig";
 
 interface Props {
   cwd: string | null;
@@ -36,6 +37,7 @@ export function SettingsSectionIcon({ section, size = 16, strokeWidth = 1.8 }: {
     className: "settings-section-icon",
   };
 
+  if (section === "backends") return <AgentLogo size={size} />;
   if (section === "general") return <svg {...common}><path d="M20 7h-9M14 17H5" /><circle cx="7" cy="7" r="3" /><circle cx="17" cy="17" r="3" /></svg>;
   if (section === "models") return <svg {...common}><rect x="4" y="4" width="16" height="16" rx="2" /><rect x="9" y="9" width="6" height="6" /><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3" /></svg>;
   if (section === "skills") return <svg {...common}><path d="m12 2-10 5 10 5 10-5-10-5Z" /><path d="m2 12 10 5 10-5M2 17l10 5 10-5" /></svg>;
@@ -183,6 +185,7 @@ export function SettingsPanel({ cwd, sessionId, initialSection, onClose, onSessi
   );
   const sections: { id: SettingsSection; label: string; requiresProject: boolean }[] = [
     { id: "general", label: t("settings.general"), requiresProject: false },
+    { id: "backends", label: t("backends.title"), requiresProject: false },
     { id: "models", label: t("common.models"), requiresProject: false },
     { id: "skills", label: t("common.skills"), requiresProject: true },
     { id: "plugins", label: t("common.plugins"), requiresProject: true },
@@ -270,6 +273,7 @@ export function SettingsPanel({ cwd, sessionId, initialSection, onClose, onSessi
         </div>
 
         <main className="settings-dialog-main">
+          {sectionHost("backends", <AgentBackendsConfig />)}
           {sectionHost("general", <GeneralSettings sessionId={sessionId} onSessionReloaded={onSessionReloaded} />)}
           {sectionHost("models", <ModelsConfig embedded onClose={onClose} />)}
           {cwd && sectionHost("skills", <SkillsConfig embedded key={cwd} cwd={cwd} onClose={onClose} />)}

@@ -28,3 +28,7 @@ kubectl apply -f deploy/kubernetes/traefik/ingressroute.example.yaml
 ```
 
 Do not create an Ingress, NodePort, LoadBalancer, `hostPort`, or `hostNetwork` for `pi-agent-rpc`. Agent uses `Recreate` to prevent overlapping writable replicas; stop the existing writer before cutover.
+
+## 多后端连接配置
+
+Web 的连接配置保存在新增 `pi-agent-web-config` PVC（默认 StorageClass，1 GiB）中。Web 使用单副本 Recreate 更新策略，保证 RWO 卷不会在更新时被多个 Pod 争用。readiness 检查 Web 配置可读性，不再以默认 Agent 在线为前提，以便离线时仍能打开设置修复连接。详见 [连接配置说明](../../docs/pi-agent-connections.md)。

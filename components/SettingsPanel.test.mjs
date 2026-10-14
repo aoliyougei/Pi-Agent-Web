@@ -12,6 +12,9 @@ const zhSource = await readFile(new URL("../lib/i18n/messages/zh-CN.ts", import.
 
 test("opens one settings panel from direct sidebar shortcuts", () => {
   assert.match(shellSource, /<SettingsPanel/);
+  assert.match(shellSource, /\["backends", translate\("backends.shortcut"\)\]/);
+  assert.doesNotMatch(shellSource, /\["models", translate\("common.models"\)\]/);
+  assert.match(shellSource, /const disabled = section === "skills" && !projectTrustCwd/);
   assert.match(shellSource, /setSettingsSection\(section\)/);
   assert.match(shellSource, /initialSection=\{settingsSection\}/);
   assert.match(shellSource, /translate\("common\.settings"\)/);

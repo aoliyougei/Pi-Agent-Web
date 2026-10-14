@@ -57,6 +57,7 @@ import type { FileViewerState } from "@/lib/file-viewer-state";
 import type { ToolEntry } from "@/lib/tool-presets";
 import { getSessionFamily } from "@/lib/session-family";
 import { getLastSettingsSection, type SettingsSection } from "@/lib/settings-navigation";
+import { getSelectedBackendId, guardBackendFetch } from "@/lib/agent-backend-selection";
 
 type SessionCopyField = "file" | "id" | "projectDir" | "gitBranch" | "gitWorktree";
 type AutoNameStatus =
@@ -70,6 +71,20 @@ const LANGUAGE_MENU_WIDTH = 176;
 const AGENT_PANEL_WIDTH = 420;
 
 export function AppShell() {
+  // A cookie change in another tab must discard this tab's old backend state before it sends commands.
+  useLayoutEffect(() => {
+    const initial = getSelectedBackendId();
+    const originalFetch = window.fetch;
+    window.fetch = guardBackendFetch(initial, originalFetch.bind(window));
+    const check = () => {
+      if (getSelectedBackendId() !== initial) window.location.replace(window.location.pathname);
+    };
+    const timer = window.setInterval(check, 500);
+    window.addEventListener("focus", check);
+    document.addEventListener("visibilitychange", check);
+    return () => { window.fetch = originalFetch; window.clearInterval(timer); window.removeEventListener("focus", check); document.removeEventListener("visibilitychange", check); };
+  }, []);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const [initialNavigation] = useState(() => getInitialNavigation(searchParams));
@@ -133,6 +148,17 @@ export function AppShell() {
   const [sessionKey, setSessionKey] = useState(0);
   const [explorerRefreshKey, setExplorerRefreshKey] = useState(0);
   const [settingsSection, setSettingsSection] = useState<SettingsSection | null>(null);
+  const [backendMissing, setBackendMissing] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/agent-backends", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const { backends } = await response.json();
+        setBackendMissing(!backends.some((backend: { id: string }) => backend.id === getSelectedBackendId()));
+      }).catch(() => {});
+    return () => controller.abort();
+  }, []);
   const [modelsRefreshKey, setModelsRefreshKey] = useState(0);
   const [projectTrust, setProjectTrust] = useState<ProjectTrustStatus | null>(null);
   const [projectTrustDialogOpen, setProjectTrustDialogOpen] = useState(false);
@@ -1041,10 +1067,10 @@ export function AppShell() {
       />
       <div style={{ padding: "8px", flexShrink: 0, display: "flex", justifyContent: "space-between", gap: 4 }}>
         {([
-          ["models", translate("common.models")],
+          ["backends", translate("backends.shortcut")],
           ["skills", translate("common.skills")],
         ] as const).map(([section, label]) => {
-          const disabled = section !== "models" && !projectTrustCwd;
+          const disabled = section === "skills" && !projectTrustCwd;
           return (
             <button
               key={section}
@@ -1728,6 +1754,10 @@ export function AppShell() {
 
   return (
     <>
+    {backendMissing && <div className="agent-backend-notice" role="status">
+      <span>{translate("backends.selectionMissing")}</span>
+      <button type="button" onClick={() => setSettingsSection("backends")}>{translate("backends.configure")}</button>
+    </div>}
     <style>{`
       @keyframes session-info-pop {
         0% {

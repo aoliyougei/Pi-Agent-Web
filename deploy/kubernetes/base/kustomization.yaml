@@ -6,3 +6,4 @@ resources:
   - web-deployment.yaml
   - web-service.yaml
   - network-policy.yaml
+  - web-config-pvc.yaml

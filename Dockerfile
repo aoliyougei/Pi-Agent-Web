@@ -17,16 +17,15 @@ LABEL io.pi-agent-web.version="$PROJECT_VERSION" \
       io.pi-agent-web.upstream-version="$WEB_VERSION" \
       io.pi-agent-contract.version="$CONTRACT_VERSION" \
       io.pi-agent.release-ready="true"
-ENV HOME=/home/node NODE_ENV=production HOSTNAME=0.0.0.0 PORT=30141 PI_WEB_HOSTNAME=0.0.0.0
+ENV HOME=/home/node NODE_ENV=production HOSTNAME=0.0.0.0 PORT=30141 PI_WEB_HOSTNAME=0.0.0.0 PI_WEB_CONFIG_DIR=/var/lib/pi-agent-web/backends
 RUN rm -rf /usr/local/lib/node_modules/npm \
       /usr/local/bin/npm /usr/local/bin/npx \
       /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/pnpm && \
-    mkdir -p /opt/pi-agent-web && chown 1000:1000 /opt/pi-agent-web
+    mkdir -p /opt/pi-agent-web /var/lib/pi-agent-web && chown 1000:1000 /opt/pi-agent-web /var/lib/pi-agent-web
 WORKDIR /opt/pi-agent-web
 COPY --from=builder --chown=1000:1000 /build/web/.next/standalone ./
 COPY --from=builder --chown=1000:1000 /build/web/.next/static ./.next/static
 COPY --from=builder --chown=1000:1000 /build/web/public ./public
-COPY --chown=1000:1000 scripts/check-rpc-token.mjs ./check-rpc-token.mjs
 COPY docker-entrypoint.sh pi-agent-web-healthcheck /usr/local/bin/
 RUN chmod 0755 /usr/local/bin/docker-entrypoint.sh /usr/local/bin/pi-agent-web-healthcheck
 USER 1000:1000

@@ -101,20 +101,21 @@ test("Web repository Kubernetes base deploys Agent data only on Agent and rolls 
   assertAgentService(agentService);
   assert.equal(web.metadata.name, "pi-agent-web");
   assert.equal(web.spec.replicas, 1);
-  assert.deepEqual(web.spec.strategy, { type: "RollingUpdate", rollingUpdate: { maxUnavailable: 0, maxSurge: 1 } });
+  assert.deepEqual(web.spec.strategy, { type: "Recreate" });
   assertSafePod(web);
   const app = container(web);
   assert.equal(app.image, "pi-agent-web:0.1.0");
   assert.deepEqual(app.ports, [{ name: "http", containerPort: 30141, protocol: "TCP" }]);
   assert.equal(app.env.find((entry) => entry.name === "PI_AGENT_RPC_URL")?.value, "http://pi-agent-rpc:8080");
   assert.equal(app.env.find((entry) => entry.name === "PI_AGENT_RPC_TOKEN_FILE")?.value, "/run/secrets/pi-agent-rpc-token");
-  assert.deepEqual(web.spec.template.spec.volumes.map((volume) => volume.name), ["rpc-token"]);
+  assert.deepEqual(web.spec.template.spec.volumes.map((volume) => volume.name), ["web-config", "rpc-token"]);
+  assert.equal(app.env.find((entry) => entry.name === "PI_WEB_CONFIG_DIR")?.value, "/var/lib/pi-agent-web/backends");
   assert.equal(app.livenessProbe.httpGet.path, "/api/health/live");
   assert.equal(app.readinessProbe.httpGet.path, "/api/health/ready");
   assert.equal(webService.spec.type, "ClusterIP");
   assert.deepEqual(webService.spec.ports, [{ name: "http", port: 30141, targetPort: "http", protocol: "TCP" }]);
   const kustomization = await yaml(webRoot, `${base}/kustomization.yaml`);
-  assert.deepEqual(kustomization.resources, ["agent-deployment.yaml", "agent-service.yaml", "web-deployment.yaml", "web-service.yaml", "network-policy.yaml"]);
+  assert.deepEqual(kustomization.resources, ["agent-deployment.yaml", "agent-service.yaml", "web-deployment.yaml", "web-service.yaml", "network-policy.yaml", "web-config-pvc.yaml"]);
 });
 
 test("NetworkPolicy and Traefik expose only Web while admitting Web to Agent 8080", async () => {
@@ -136,7 +137,7 @@ test("Kustomize bases render every declared resource without external tooling", 
     "Deployment/pi-agent-rpc", "Service/pi-agent-rpc",
   ]);
   assert.deepEqual(web.map((resource) => `${resource.kind}/${resource.metadata.name}`), [
-    "Deployment/pi-agent-rpc", "Service/pi-agent-rpc", "Deployment/pi-agent-web", "Service/pi-agent-web", "NetworkPolicy/pi-agent-rpc-ingress",
+    "Deployment/pi-agent-rpc", "Service/pi-agent-rpc", "Deployment/pi-agent-web", "Service/pi-agent-web", "NetworkPolicy/pi-agent-rpc-ingress", "PersistentVolumeClaim/pi-agent-web-config",
   ]);
 });
 

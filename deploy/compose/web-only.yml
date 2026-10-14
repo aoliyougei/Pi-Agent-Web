@@ -1,0 +1,18 @@
+services:
+  web:
+    image: pi-agent-web:0.1.0
+    user: "1000:1000"
+    restart: unless-stopped
+    ports:
+      - "${PI_AGENT_WEB_PORT:-30141}:30141"
+    environment:
+      PI_WEB_CONFIG_DIR: /var/lib/pi-agent-web/backends
+    volumes:
+      - web-config:/var/lib/pi-agent-web
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  web-config: {}
