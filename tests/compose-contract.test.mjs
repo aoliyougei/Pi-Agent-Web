@@ -26,7 +26,7 @@ test("Compose exposes only Web and keeps Agent data on the internal service", as
   assert.deepEqual(Object.keys(compose.services).sort(), ["agent", "web"]);
   const { agent, web } = compose.services;
   assert.equal(agent.image, "pi-agent-rpc:0.1.0");
-  assert.equal(web.image, "pi-agent-web:0.1.0");
+  assert.equal(web.image, "registry.aoliyougei.com/aoliyougei/pi-agent-web:0.2.0");
   assert.deepEqual(agent.expose, [8080]);
   assert.equal(agent.ports, undefined);
   assert.deepEqual(web.ports, ["${PI_AGENT_WEB_PORT:-30141}:30141"]);

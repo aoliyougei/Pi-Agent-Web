@@ -1,6 +1,6 @@
 services:
   web:
-    image: pi-agent-web:0.1.0
+    image: registry.aoliyougei.com/aoliyougei/pi-agent-web:0.2.0
     user: "1000:1000"
     restart: unless-stopped
     ports:
