@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 
 const configDir = dirname(fileURLToPath(import.meta.url));
 const { version } = JSON.parse(readFileSync(join(configDir, "package.json"), "utf8")) as { version: string };
+const { version: projectVersion } = JSON.parse(readFileSync(join(configDir, "release.json"), "utf8")) as { version: string };
 const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: configDir,
@@ -58,6 +59,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_APP_VERSION: version,
+    NEXT_PUBLIC_PROJECT_VERSION: projectVersion,
     NEXT_PUBLIC_PI_VERSION: "0.84.4",
   },
 };

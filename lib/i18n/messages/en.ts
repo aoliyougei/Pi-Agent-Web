@@ -21,6 +21,7 @@ export const enLocale: LocalePlugin = {
     "backends.configure": "Configure",
     "backends.connect": "Connect",
     "backends.shortcut": "Pi Agent",
+    "backends.versionUnknown": "Not connected / version unknown",
     "backends.delete": "Delete",
     "backends.deleteConfirm": "Delete backend {name}? This removes it for everyone.",
     "backends.add": "Add backend",

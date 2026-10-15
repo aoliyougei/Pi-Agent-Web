@@ -21,6 +21,7 @@ export const zhCNLocale: LocalePlugin = {
     "backends.configure": "配置",
     "backends.connect": "连接",
     "backends.shortcut": "Pi Agent",
+    "backends.versionUnknown": "未连接／版本未知",
     "backends.delete": "删除",
     "backends.deleteConfirm": "删除后端 {name}？此配置将对所有用户移除。",
     "backends.add": "添加后端",

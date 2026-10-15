@@ -21,6 +21,7 @@ export const zhTWLocale: LocalePlugin = {
     "backends.configure": "設定",
     "backends.connect": "連線",
     "backends.shortcut": "Pi Agent",
+    "backends.versionUnknown": "未連線／版本未知",
     "backends.delete": "刪除",
     "backends.deleteConfirm": "刪除後端 {name}？此設定將對所有使用者移除。",
     "backends.add": "新增後端",

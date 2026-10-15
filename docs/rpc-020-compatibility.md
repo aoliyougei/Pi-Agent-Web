@@ -1,0 +1,7 @@
+# RPC 0.2.0 compatibility
+
+Web supports the known Pi runtime versions 0.84.4 and 1.2.0 while retaining protocol v1 parsing and required-capability checks. This does not imply support for arbitrary future Pi versions. The command, event, route and capability contract files match the locally inspected RPC 0.2.0 source. No Agent runtime or contract implementation is modified.
+
+The empty-chat header now queries GET /api/agent/version through the selected-backend BFF. It displays pi-agent-rpc plus the backend serverVersion, with the underlying Pi version in its tooltip. It refreshes on mount, window focus and every 30 seconds. Backend selection reloads the page. Failed requests clear the displayed version instead of preserving stale values. Version responses are not cached, and service credentials and upstream errors are not exposed.
+
+Verification in Docker: root tests 589/589, TypeScript and changed-file ESLint passed. A task-owned container using the existing pi-agent-rpc:0.2.0 image reported serverVersion 0.2.0 and piVersion 1.2.0. Default-cwd, sessions, and models with an allowed cwd returned 200. Models without a cwd returned 403 because /app was not authorized in the clean test environment; using the default-cwd result succeeded. The default-directory failure in the user's deployed environment remains unconfirmed. No model prompt, SSE end-to-end run, production image build or visual browser test was performed in this change.
