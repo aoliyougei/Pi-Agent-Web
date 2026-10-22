@@ -59,6 +59,7 @@ import { getSessionFamily } from "@/lib/session-family";
 import { getLastSettingsSection, type SettingsSection } from "@/lib/settings-navigation";
 import { getSelectedBackendId, guardBackendFetch } from "@/lib/agent-backend-selection";
 import { sessionFetch as fetch, sessionScope, sessionUrl } from "@/lib/session-scope";
+import { isWorkspaceWithin } from "@/lib/workspace-selection";
 
 type SessionCopyField = "file" | "id" | "projectDir" | "gitBranch" | "gitWorktree";
 type AutoNameStatus =
@@ -901,6 +902,22 @@ export function AppShell() {
     setInitialSessionRestored(true);
   }, []);
 
+  const handleWorkspaceRemoved = useCallback((path: string, fallbackCwd: string | null) => {
+    const affected = (selectedSession?.cwd && isWorkspaceWithin(selectedSession.cwd, path))
+      || (newSessionCwd && isWorkspaceWithin(newSessionCwd, path))
+      || (activeCwd && isWorkspaceWithin(activeCwd, path));
+    if (!affected) return;
+    invalidateWorkspaceRestore();
+    activeNewSessionDraftKeyRef.current = null;
+    setSelectedSession(null);
+    setNewSessionCwd(fallbackCwd);
+    setActiveCwd(fallbackCwd);
+    setSessionKey(key => key + 1);
+    setFileTabs([]);
+    setActiveFileTabId(null);
+    router.replace("/", { scroll: false });
+  }, [selectedSession, newSessionCwd, activeCwd, invalidateWorkspaceRestore, router]);
+
   const handleSessionDeleted = useCallback((sessionId: string) => {
     invalidateWorkspaceRestore();
     setRefreshKey((k) => k + 1);
@@ -1057,6 +1074,7 @@ export function AppShell() {
         onInitialRestoreDone={handleInitialRestoreDone}
         refreshKey={refreshKey}
         onSessionDeleted={handleSessionDeleted}
+        onWorkspaceRemoved={handleWorkspaceRemoved}
         selectedCwd={selectedSession?.cwd ?? newSessionCwd ?? null}
         onCwdChange={handleCwdChange}
         onOpenFile={handleOpenFile}

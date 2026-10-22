@@ -16,7 +16,8 @@ import { DirectoryPicker } from "./DirectoryPicker";
 import { FileExplorer, type FileExplorerHandle } from "./FileExplorer";
 import { RemoteFileExplorer } from "./middleware/ssh-remote-status/RemoteFileExplorer";
 import { useSshRemoteStatus } from "./middleware/ssh-remote-status/useSshRemoteStatus";
-import { loadLocalWorkspaces, saveLocalWorkspace } from "@/lib/middleware/ssh-remote-status/local-workspace-memory";
+import { loadLocalWorkspaces, saveLocalWorkspace, removeLocalWorkspace } from "@/lib/middleware/ssh-remote-status/local-workspace-memory";
+import { isMissingWorkspace, isWorkspaceWithin, validateWorkspace } from "@/lib/workspace-selection";
 
 declare global {
   interface Window {
@@ -94,6 +95,7 @@ interface Props {
   onInitialRestoreDone?: () => void;
   refreshKey?: number;
   onSessionDeleted?: (sessionId: string) => void;
+  onWorkspaceRemoved?: (path: string, fallbackCwd: string | null) => void;
   selectedCwd?: string | null;
   onCwdChange?: (
     cwd: string | null,
@@ -357,7 +359,7 @@ function PiWebTitle() {
   );
 }
 
-export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSession, initialSessionId, skipInitialProjectSelection, onInitialRestoreDone, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, explorerRefreshKey, onExplorerRefresh, onAtMention, onAtMentions, onBackgroundTaskDone, onRunningSessionIdsChange, onSessionsChange }: Props) {
+export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSession, initialSessionId, skipInitialProjectSelection, onInitialRestoreDone, refreshKey, onSessionDeleted, onWorkspaceRemoved, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, explorerRefreshKey, onExplorerRefresh, onAtMention, onAtMentions, onBackgroundTaskDone, onRunningSessionIdsChange, onSessionsChange }: Props) {
   const { t } = useI18n();
   const sshStatus = useSshRemoteStatus(selectedSessionId ?? undefined, refreshKey);
   const remoteEnvironment = sshStatus.environment?.mode === "ssh" ? sshStatus.environment : null;
@@ -367,6 +369,12 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const [error, setError] = useState<string | null>(null);
   const [selectedCwd, setSelectedCwd] = useState<string | null>(null);
   const [localWorkspaces, setLocalWorkspaces] = useState<string[]>(() => loadLocalWorkspaces());
+  const [unavailableWorkspaces, setUnavailableWorkspaces] = useState<string[]>([]);
+  const workspaceSelectionGeneration = useRef(0);
+  const forgetWorkspace = useCallback((path: string) => {
+    setLocalWorkspaces(removeLocalWorkspace(path));
+    setUnavailableWorkspaces(current => [...current.filter(item => !isWorkspaceWithin(item, path)), path]);
+  }, []);
   const [homeDir, setHomeDir] = useState<string>("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [projectFilter, setProjectFilter] = useState("");
@@ -416,12 +424,25 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       if (showLoading) setLoading(true);
       const params = new URLSearchParams();
       if (force) params.set("force", "1");
-      const directory = selectedCwd ?? (initialSessionId ? sessionScope.cwd(initialSessionId) : undefined);
+      const hint = initialSessionId ? sessionScope.cwd(initialSessionId) : undefined;
+      const directory = selectedCwd ?? (hint && !unavailableWorkspaces.some(path => isWorkspaceWithin(hint, path)) ? hint : undefined);
       if (directory) {
         const supported = await sessionScope.enabled();
         if (generation !== sessionListGeneration.current) return;
         setProjectDiscoverySupported(supported);
-        if (supported) params.set("cwd", await sessionScope.validate(directory));
+        if (supported) {
+          try {
+            params.set("cwd", await sessionScope.validate(directory));
+          } catch (cause) {
+            if (!isMissingWorkspace(cause)) throw cause;
+            if (generation !== sessionListGeneration.current) return;
+            forgetWorkspace(directory);
+            setSelectedCwd(null);
+            setValidatedProject(null);
+            onWorkspaceRemoved?.(directory, null);
+            // The global catalogue remains usable even when a remembered cwd vanished.
+          }
+        }
       }
       if (generation !== sessionListGeneration.current) return;
       const res = await fetch(`/api/sessions${params.size ? `?${params}` : ""}`, {
@@ -469,7 +490,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     } finally {
       if (generation === sessionListGeneration.current) setLoading(false);
     }
-  }, [selectedCwd, initialSessionId]);
+  }, [selectedCwd, initialSessionId, forgetWorkspace, unavailableWorkspaces, onWorkspaceRemoved]);
 
   const initialLoadDone = useRef(false);
   useEffect(() => {
@@ -727,7 +748,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
 
     // A project deep link may only become discoverable after the user selects its cwd.
     if (initialSessionId && !restoredRef.current) {
-      const target = allSessions.find((s) => s.id === initialSessionId);
+      const target = allSessions.find((s) => s.id === initialSessionId && !unavailableWorkspaces.some(path => isWorkspaceWithin(s.cwd, path)));
       if (target) {
         restoredRef.current = true;
         setSelectedCwd(target.cwd);
@@ -737,10 +758,10 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       onInitialRestoreDone?.();
     }
     if (selectedCwd === null) {
-      const projects = getRecentProjects(allSessions);
+      const projects = getRecentProjects(allSessions).filter(project => !unavailableWorkspaces.some(path => isWorkspaceWithin(project.root, path)));
       if (projects.length > 0) setSelectedCwd(projects[0].root);
     }
-  }, [allSessions, loading, selectedCwd, initialSessionId, skipInitialProjectSelection, onSelectSession, onInitialRestoreDone]);
+  }, [allSessions, loading, selectedCwd, initialSessionId, skipInitialProjectSelection, onSelectSession, onInitialRestoreDone, unavailableWorkspaces]);
 
   // Prefer an exact UI selection while a refetch is in flight. Once the
   // response catches up, the server-resolved path handles Windows case and
@@ -757,6 +778,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const commitCustomPath = useCallback(async (candidate?: string) => {
     const path = (candidate ?? customPathValue).trim();
     if (!path || customPathValidating) return;
+    const generation = ++workspaceSelectionGeneration.current;
 
     setCustomPathValidating(true);
     setCustomPathError(null);
@@ -772,6 +794,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         projectKey?: string;
         error?: string;
       };
+      if (generation !== workspaceSelectionGeneration.current) return;
       if (!res.ok || data.error || !data.cwd || !data.projectRoot || !data.projectKey) {
         setCustomPathError(data.error ?? `HTTP ${res.status}`);
         return;
@@ -781,6 +804,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         root: data.projectRoot,
         key: data.projectKey,
       });
+      setUnavailableWorkspaces(current => current.filter(path => !isWorkspaceWithin(data.cwd!, path)));
       saveLastCustomCwd(data.cwd);
       setCustomPathValue(data.cwd);
       setSelectedCwd(data.cwd);
@@ -792,6 +816,22 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       setCustomPathValidating(false);
     }
   }, [customPathValue, customPathValidating]);
+
+  const selectLocalProject = useCallback(async (directory: string) => {
+    const generation = ++workspaceSelectionGeneration.current;
+    try {
+      const project = await validateWorkspace(directory, fetch);
+      if (generation !== workspaceSelectionGeneration.current) return;
+      setValidatedProject(project);
+      setUnavailableWorkspaces(current => current.filter(path => !isWorkspaceWithin(project.cwd, path)));
+      setSelectedCwd(project.cwd);
+      setError(null);
+    } catch (cause) {
+      if (generation !== workspaceSelectionGeneration.current) return;
+      if (isMissingWorkspace(cause)) forgetWorkspace(directory);
+      setError(cause instanceof Error ? cause.message : String(cause));
+    }
+  }, [forgetWorkspace]);
 
   const handleCustomPathClick = useCallback(() => {
     setCustomPathOpen(true);
@@ -871,14 +911,19 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         return;
       }
       setWtConfirmRemove(null);
-      if (currentWorktreePath === path) setSelectedCwd(worktreeState.projectRoot);
+      workspaceSelectionGeneration.current += 1;
+      forgetWorkspace(path);
+      setValidatedProject(null);
+      if (currentWorktreePath === path || (selectedCwd && isWorkspaceWithin(selectedCwd, path))) setSelectedCwd(worktreeState.projectRoot);
+      onWorkspaceRemoved?.(path, worktreeState.projectRoot);
       setWtRefreshKey((k) => k + 1);
+      void loadSessions(false, true);
     } catch (e) {
       setWtError(e instanceof Error ? e.message : String(e));
     } finally {
       setWtBusy(false);
     }
-  }, [worktreeState, wtBusy, currentWorktreePath]);
+  }, [worktreeState, wtBusy, currentWorktreePath, selectedCwd, forgetWorkspace, loadSessions, onWorkspaceRemoved]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -924,7 +969,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const rememberedProjects = localWorkspaces
     .filter((root) => !sessionProjectKeys.has(root))
     .map((root) => ({ key: root, root }));
-  const recentProjects = [...sessionProjects, ...rememberedProjects];
+  const recentProjects = [...sessionProjects, ...rememberedProjects].filter(project => !unavailableWorkspaces.some(path => isWorkspaceWithin(project.root, path)));
   const workspaceSession = (key: string) => allSessions.find((session) => workspaceKeyOf(session) === key);
   const workspaceKind = (key: string) => workspaceSession(key)?.workspaceKind ?? "local";
   const workspaceLabel = (key: string, root: string) => workspaceSession(key)?.workspaceLabel ?? displayCwd(root, homeDir);
@@ -943,12 +988,12 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   // Keep explicitly visited local workspaces even when they have no persisted
   // Session. Never infer a local workspace from an SSH Session's anchor cwd.
   useEffect(() => {
-    if (!selectedCwd || selectedSessionWorkspace?.workspaceKind === "ssh") return;
+    if (!selectedCwd || selectedSessionWorkspace?.workspaceKind === "ssh" || unavailableWorkspaces.some(path => isWorkspaceWithin(selectedCwd, path))) return;
     setLocalWorkspaces((current) => {
       if (current[0] === selectedCwd) return current;
       return saveLocalWorkspace(selectedCwd);
     });
-  }, [selectedCwd, selectedSessionWorkspace?.workspaceKind]);
+  }, [selectedCwd, selectedSessionWorkspace?.workspaceKind, unavailableWorkspaces]);
 
   // Per-project activity counts (running / unread) for the workspace selector.
   // Uses the same stable server key as the project list and filtering.
@@ -1216,10 +1261,10 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                     key={project.key}
                     onClick={() => {
                       const session = workspaceSession(project.key);
-                      if (session) {
+                      if (session?.workspaceKind === "ssh") {
                         onSelectSession(session);
                       } else {
-                        setSelectedCwd(project.root);
+                        void selectLocalProject(project.root);
                       }
                       setProjectFilter("");
                       setCustomPathOpen(false);
