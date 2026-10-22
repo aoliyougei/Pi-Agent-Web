@@ -8,6 +8,7 @@ import { dispatchSessionRowContextMenu } from "@/lib/session-row-context-menu";
 import { skillExpansionToCommand } from "@/lib/slash-display";
 import { getProjectActivity, getRecentProjects, sessionsForProject } from "@/lib/project-groups";
 import { workspaceKeyOf } from "@/lib/workspace-memory";
+import { getSelectedBackendId } from "@/lib/agent-backend-selection";
 import { formatRelativeTime } from "@/lib/i18n/format";
 import { useI18n } from "@/hooks/useI18n";
 import { DirectoryPicker } from "./DirectoryPicker";
@@ -149,7 +150,8 @@ const RUNNING_SESSIONS_POLL_MS = 2500;
 function loadLastCustomCwd(): string {
   if (typeof window === "undefined") return "";
   try {
-    return window.localStorage.getItem(LAST_CUSTOM_CWD_STORAGE_KEY) ?? "";
+    // Legacy unscoped paths have no reliable backend identity, including for default.
+    return window.localStorage.getItem(`${LAST_CUSTOM_CWD_STORAGE_KEY}:${getSelectedBackendId()}`) ?? "";
   } catch {
     return "";
   }
@@ -158,7 +160,7 @@ function loadLastCustomCwd(): string {
 function saveLastCustomCwd(cwd: string): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(LAST_CUSTOM_CWD_STORAGE_KEY, cwd);
+    window.localStorage.setItem(`${LAST_CUSTOM_CWD_STORAGE_KEY}:${getSelectedBackendId()}`, cwd);
   } catch {
     // Persistence is best-effort.
   }

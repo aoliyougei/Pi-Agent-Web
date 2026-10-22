@@ -17,9 +17,13 @@ interface BrowseResponse {
   error?: string;
 }
 
-async function loadDirectories(directory?: string): Promise<BrowseResponse> {
+async function loadDirectories(directory?: string, fallbackToDefault = false): Promise<BrowseResponse> {
   const query = directory ? `?path=${encodeURIComponent(directory)}` : "";
   const response = await fetch(`/api/cwd/browse${query}`);
+  if (fallbackToDefault && directory && response.status === 404) {
+    await response.body?.cancel();
+    return loadDirectories();
+  }
   const data = await response.json() as BrowseResponse;
   if (!response.ok || data.error) throw new Error(data.error ?? `HTTP ${response.status}`);
   return data;
@@ -66,11 +70,11 @@ export function DirectoryPicker({ onCancel, onSelect, initialPath, busy = false,
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const navigateTo = useCallback(async (directory?: string) => {
+  const navigateTo = useCallback(async (directory?: string, fallbackToDefault = false) => {
     setLoading(true);
     setLoadError(null);
     try {
-      const data = await loadDirectories(directory);
+      const data = await loadDirectories(directory, fallbackToDefault);
       const nextPath = data.path ?? directory ?? "/";
       setCurrentPath(nextPath);
       setParentDirectory(data.parentPath ?? null);
@@ -86,7 +90,7 @@ export function DirectoryPicker({ onCancel, onSelect, initialPath, busy = false,
 
   useEffect(() => {
     setPortalTarget(document.body);
-    void navigateTo(initialPath || undefined);
+    void navigateTo(initialPath || undefined, true);
   }, [initialPath, navigateTo]);
 
   const handlePathSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -95,7 +99,7 @@ export function DirectoryPicker({ onCancel, onSelect, initialPath, busy = false,
     if (candidate) void navigateTo(candidate);
   };
   const hasUncommittedPath = pathInput.trim() !== currentPath;
-  const canSelect = Boolean(currentPath) && !hasUncommittedPath && !busy;
+  const canSelect = Boolean(currentPath) && !hasUncommittedPath && !busy && !loading && !loadError;
   const canNavigateUp = Boolean(parentDirectory) || isWindowsDriveRoot(currentPath);
 
   if (!portalTarget) return null;
