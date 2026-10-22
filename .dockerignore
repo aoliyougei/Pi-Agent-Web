@@ -1,4 +1,5 @@
 .git
+.pi
 .next
 node_modules
 *.tgz

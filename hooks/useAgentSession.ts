@@ -14,6 +14,7 @@ import type {
 import { isBlockingExtensionUiRequest } from "@/lib/browser-notifications";
 import { normalizeToolCalls } from "@/lib/normalize";
 import { isPromptRejectedError, sendAgentCommand } from "@/lib/agent-client";
+import { sessionFetch as fetch, sessionScope, sessionUrl, sessionResponseError } from "@/lib/session-scope";
 import { clearDraft, rekeyDraft, restoreDraftSubmission } from "@/lib/draft-store";
 import { getPreferredToolPreset, setPreferredToolPreset } from "@/lib/tool-preset-preference";
 import { getPresetFromToolNames, getToolNamesForPreset, type ToolEntry, type ToolPreset } from "@/lib/tool-presets";
@@ -325,6 +326,10 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   const eventStreamGraceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const eventStreamGraceGenerationRef = useRef(0);
   const eventStreamGraceActiveRef = useRef(false);
+  useLayoutEffect(() => {
+    // SessionInfo.cwd is the RPC-local anchor, including for SSH workspaces.
+    if (session?.cwd) sessionScope.remember(session.id, session.cwd);
+  }, [session]);
   const sessionIdRef = useRef<string | null>(session?.id ?? null);
   const sessionPropIdRef = useRef<string | null>(session?.id ?? null);
   const sessionRunningRef = useRef(Boolean(sessionRunning));
@@ -359,7 +364,8 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
 
   if (!eventConnectionRef.current) {
     eventConnectionRef.current = new AgentEventConnection({
-      createSource: (sid, cursor) => new EventSource(`/api/agent/${encodeURIComponent(sid)}/events${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`),
+      beforeConnect: (sid) => sessionScope.prepare(sid),
+      createSource: (sid, cursor) => new EventSource(sessionUrl(`/api/agent/${encodeURIComponent(sid)}/events${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`)),
       onResync: (sid) => resyncRef.current(sid),
       onEvent: (event) => handleAgentEventRef.current?.(event as AgentEvent),
       shouldMaintain: (sid) => (
@@ -469,7 +475,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         }
         return null;
       }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw await sessionResponseError(res);
       const d = await res.json() as SessionData;
       if (sessionIdRef.current !== sid || (expectedRunId !== undefined && promptRunIdRef.current !== expectedRunId)) return null;
       const persistedMessages = d.context.messages;
@@ -492,7 +498,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
 
       try {
         const stateRes = await fetch(`/api/sessions/${encodeURIComponent(sid)}/state`);
-        if (!stateRes.ok) throw new Error(`HTTP ${stateRes.status}`);
+        if (!stateRes.ok) throw await sessionResponseError(stateRes);
         const agentState = await stateRes.json() as { running: boolean; state?: AgentStateResponse };
         if (sessionIdRef.current !== sid || (expectedRunId !== undefined && promptRunIdRef.current !== expectedRunId)) return null;
 
@@ -629,6 +635,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         thinkingLevel?: ThinkingLevelOption;
       };
       const realId = result.sessionId;
+      sessionScope.remember(realId, newSessionCwd);
       sessionIdRef.current = realId;
       if (result.model && newSessionModelOverrideRef.current === selectedModel) {
         setPendingModel(result.model);
@@ -1459,6 +1466,8 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       });
       const { cancelled, newSessionId } = result ?? {};
       if (!cancelled && newSessionId) {
+        const directory = sessionScope.cwd(sid);
+        if (directory) sessionScope.remember(newSessionId, directory);
         onSessionForked?.(newSessionId);
       }
     } catch (e) {
@@ -1665,6 +1674,8 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
             return complete({ handled: true, error: "Cannot clone an empty or unsaved session" });
           }
           const completed = complete({ handled: true, message: "Cloned current session branch" });
+          const directory = sessionScope.cwd(sid);
+          if (directory) sessionScope.remember(result.newSessionId, directory);
           onSessionForked?.(result.newSessionId);
           return completed;
         }

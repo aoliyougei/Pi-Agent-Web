@@ -35,6 +35,7 @@ type Connection = {
 
 export interface AgentEventConnectionOptions {
   createSource(sessionId: string, cursor?: string): AgentEventSourceLike;
+  beforeConnect?(sessionId: string): Promise<unknown>;
   onResync?(sessionId: string): Promise<void>;
   onEvent(event: AgentEventLike): void;
   shouldMaintain(sessionId: string): boolean;
@@ -83,7 +84,11 @@ export class AgentEventConnection {
       }
       let connection = this.current;
       if (!connection || connection.sessionId !== sessionId) {
-        connection = this.open(sessionId);
+        const generation = this.retryGeneration;
+        if (this.options.beforeConnect) await this.options.beforeConnect(sessionId);
+        if (generation !== this.retryGeneration) throw new AgentEventConnectionError("closed");
+        // Another concurrent ensureConnected may have opened it while validation ran.
+        connection = this.current?.sessionId === sessionId ? this.current : this.open(sessionId);
       } else if (
         connection.attempt.ready
         && connection.source.readyState === EVENT_SOURCE_OPEN

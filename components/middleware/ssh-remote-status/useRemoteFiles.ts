@@ -1,4 +1,5 @@
 "use client";
+import { sessionFetch as fetch } from "@/lib/session-scope";
 import { useCallback, useState } from "react";
 export type RemoteEntry = { name: string; type: "file" | "directory" };
 export function useRemoteFiles(sessionId: string) {

@@ -58,6 +58,7 @@ import type { ToolEntry } from "@/lib/tool-presets";
 import { getSessionFamily } from "@/lib/session-family";
 import { getLastSettingsSection, type SettingsSection } from "@/lib/settings-navigation";
 import { getSelectedBackendId, guardBackendFetch } from "@/lib/agent-backend-selection";
+import { sessionFetch as fetch, sessionScope, sessionUrl } from "@/lib/session-scope";
 
 type SessionCopyField = "file" | "id" | "projectDir" | "gitBranch" | "gitWorktree";
 type AutoNameStatus =
@@ -115,6 +116,7 @@ export function AppShell() {
   const [selectedSession, setSelectedSession] = useState<SessionInfo | null>(null);
   const [sessionCatalog, setSessionCatalog] = useState<SessionInfo[]>([]);
   const handleSessionsChange = useCallback((sessions: SessionInfo[]) => {
+    for (const item of sessions) if (item.cwd) sessionScope.remember(item.id, item.cwd);
     setSessionCatalog(sessions);
   }, []);
   const sessionsWithSelection = useMemo(() => {
@@ -561,11 +563,11 @@ export function AppShell() {
     const token = ++workspaceRestoreTokenRef.current;
     const lastOpenSessionId = getLastOpenSession(projectKey);
     if (!lastOpenSessionId) return;
-    void fetch("/api/sessions")
-      .then((r) => (r.ok ? (r.json() as Promise<{ sessions: SessionInfo[] }>) : null))
+    void fetch(`/api/sessions/${encodeURIComponent(lastOpenSessionId)}`)
+      .then(async (r): Promise<{ info?: SessionInfo } | null> => r.ok ? await r.json() : r.status === 404 ? {} : null)
       .then((d) => {
         if (token !== workspaceRestoreTokenRef.current) return; // stale switch
-        const s = d?.sessions.find((x) => x.id === lastOpenSessionId);
+        const s = d?.info;
         if (!s) {
           // The list loaded but the remembered session is gone — forget it.
           // When the list itself failed (d === null) keep the memory so a
@@ -731,10 +733,10 @@ export function AppShell() {
   // handleCwdChange relies on. Hydrate it from the session list so switching
   // worktrees right after creating a session doesn't close the chat.
   const hydrateSelectedSession = useCallback((sessionId: string) => {
-    void fetch("/api/sessions", { cache: "no-store" })
-      .then((r) => (r.ok ? (r.json() as Promise<{ sessions: SessionInfo[] }>) : null))
+    void fetch(`/api/sessions/${encodeURIComponent(sessionId)}`, { cache: "no-store" })
+      .then((r) => (r.ok ? (r.json() as Promise<{ info?: SessionInfo }>) : null))
       .then((d) => {
-        const full = d?.sessions.find((s) => s.id === sessionId);
+        const full = d?.info;
         if (!full) return;
         setSelectedSession((prev) => (
           prev?.id === sessionId
@@ -763,6 +765,7 @@ export function AppShell() {
     invalidateWorkspaceRestore();
     activeNewSessionDraftKeyRef.current = null;
     setNewSessionCwd(null);
+    if (session.cwd) sessionScope.remember(session.id, session.cwd);
     setSelectedSession(session);
     hydrateSelectedSession(session.id);
     router.replace(`?session=${encodeURIComponent(session.id)}`, { scroll: false });
@@ -964,7 +967,7 @@ export function AppShell() {
   const handleViewFullHistory = useCallback(() => {
     if (!selectedSession) return;
     window.open(
-      `/api/sessions/${encodeURIComponent(selectedSession.id)}/export?inline=1`,
+      sessionUrl(`/api/sessions/${encodeURIComponent(selectedSession.id)}/export?inline=1`),
       "_blank",
       "noopener,noreferrer",
     );

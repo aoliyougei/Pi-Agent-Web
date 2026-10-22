@@ -9,6 +9,7 @@ import { skillExpansionToCommand } from "@/lib/slash-display";
 import { getProjectActivity, getRecentProjects, sessionsForProject } from "@/lib/project-groups";
 import { workspaceKeyOf } from "@/lib/workspace-memory";
 import { getSelectedBackendId } from "@/lib/agent-backend-selection";
+import { sessionFetch as fetch, sessionScope } from "@/lib/session-scope";
 import { formatRelativeTime } from "@/lib/i18n/format";
 import { useI18n } from "@/hooks/useI18n";
 import { DirectoryPicker } from "./DirectoryPicker";
@@ -407,10 +408,23 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const explorerRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileExplorerRef = useRef<FileExplorerHandle>(null);
 
+  const [projectDiscoverySupported, setProjectDiscoverySupported] = useState<boolean | null>(null);
+  const sessionListGeneration = useRef(0);
   const loadSessions = useCallback(async (showLoading = false, force = false) => {
+    const generation = ++sessionListGeneration.current;
     try {
       if (showLoading) setLoading(true);
-      const res = await fetch(force ? "/api/sessions?force=1" : "/api/sessions", {
+      const params = new URLSearchParams();
+      if (force) params.set("force", "1");
+      const directory = selectedCwd ?? (initialSessionId ? sessionScope.cwd(initialSessionId) : undefined);
+      if (directory) {
+        const supported = await sessionScope.enabled();
+        if (generation !== sessionListGeneration.current) return;
+        setProjectDiscoverySupported(supported);
+        if (supported) params.set("cwd", await sessionScope.validate(directory));
+      }
+      if (generation !== sessionListGeneration.current) return;
+      const res = await fetch(`/api/sessions${params.size ? `?${params}` : ""}`, {
         cache: "no-store",
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -419,6 +433,10 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         runningSessionIds?: string[];
         completionNotificationSuppressedSessionIds?: string[];
       };
+      if (generation !== sessionListGeneration.current) return;
+      for (const item of data.sessions) {
+        if (item.cwd) sessionScope.remember(item.id, item.cwd);
+      }
       setAllSessions(data.sessions);
       // Treat the fetched running set as an initial fallback only. Once the
       // lightweight poll is live, a slow session-list fetch cannot overwrite it.
@@ -447,17 +465,18 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         sessionRefreshTimerRef.current = setTimeout(() => setSessionRefreshDone(false), 2000);
       }
     } catch (e) {
-      setError(String(e));
+      if (generation === sessionListGeneration.current) setError(String(e));
     } finally {
-      if (showLoading) setLoading(false);
+      if (generation === sessionListGeneration.current) setLoading(false);
     }
-  }, []);
+  }, [selectedCwd, initialSessionId]);
 
   const initialLoadDone = useRef(false);
   useEffect(() => {
     const isFirst = !initialLoadDone.current;
     initialLoadDone.current = true;
     loadSessions(isFirst, !isFirst);
+    return () => { sessionListGeneration.current += 1; };
   }, [loadSessions, refreshKey]);
 
   // Browser storage is unavailable during server rendering. Restore the panel
@@ -704,25 +723,24 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
 
   // Auto-select cwd and restore session from URL on first load
   useEffect(() => {
-    if (allSessions.length === 0 || skipInitialProjectSelection) return;
+    if (loading || skipInitialProjectSelection) return;
 
-    if (selectedCwd === null) {
-      // If restoring a session, set cwd to match that session
-      if (initialSessionId && !restoredRef.current) {
+    // A project deep link may only become discoverable after the user selects its cwd.
+    if (initialSessionId && !restoredRef.current) {
+      const target = allSessions.find((s) => s.id === initialSessionId);
+      if (target) {
         restoredRef.current = true;
-        const target = allSessions.find((s) => s.id === initialSessionId);
-        if (target) {
-          setSelectedCwd(target.cwd);
-          onSelectSession(target, true);
-          return;
-        }
-        // Session not found — notify parent so it can show the placeholder
-        onInitialRestoreDone?.();
+        setSelectedCwd(target.cwd);
+        onSelectSession(target, true);
+        return;
       }
+      onInitialRestoreDone?.();
+    }
+    if (selectedCwd === null) {
       const projects = getRecentProjects(allSessions);
       if (projects.length > 0) setSelectedCwd(projects[0].root);
     }
-  }, [allSessions, selectedCwd, initialSessionId, skipInitialProjectSelection, onSelectSession, onInitialRestoreDone]);
+  }, [allSessions, loading, selectedCwd, initialSessionId, skipInitialProjectSelection, onSelectSession, onInitialRestoreDone]);
 
   // Prefer an exact UI selection while a refetch is in flight. Once the
   // response catches up, the server-resolved path handles Windows case and
@@ -1666,6 +1684,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
             {error}
           </div>
         )}
+        {selectedCwd && projectDiscoverySupported === false && <div role="status" style={{ padding: "12px 14px", color: "var(--text-muted)", fontSize: 12 }}>{t("sidebar.projectSessionsUnsupported")}</div>}
+        {!loading && !error && initialSessionId && !restoredRef.current && <div role="status" style={{ padding: "12px 14px", color: "var(--text-muted)", fontSize: 12 }}>{t("sidebar.selectSessionDirectory")}</div>}
         {!loading && !error && sessionFamilies.length === 0 && (
           <div style={{ padding: "16px 14px", color: "var(--text-muted)", fontSize: 12 }}>
             {t("sidebar.noSessions")}
@@ -1686,6 +1706,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               onClick={() => handleSelectSessionFromList(family.root)}
               onRenamed={loadSessions}
               onDeleted={(id) => {
+                sessionScope.forget(id);
                 onSessionDeleted?.(id);
                 loadSessions();
               }}

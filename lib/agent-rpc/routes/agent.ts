@@ -25,7 +25,9 @@ export function createRemoteAgentRoutes(send: AgentFetch) {
     if (suffix === "/events") {
       const headers = new Headers(request.headers);
       if (!headers.has("last-event-id") && url.searchParams.has("cursor")) headers.set("last-event-id", url.searchParams.get("cursor")!);
-      const response = await proxyAgentRequest(new Request(request, { headers }), `${ROOT}/${encodeURIComponent(id)}/events`, send);
+      // The browser cursor maps to Last-Event-ID; retain lookup hints in the URL.
+      url.searchParams.delete("cursor");
+      const response = await proxyAgentRequest(new Request(request, { headers }), `${ROOT}/${encodeURIComponent(id)}/events${url.search}`, send);
       if (response.status === 409) {
         const body = await response.json().catch(() => null);
         if (body?.error?.code === "resync_required") {

@@ -34,6 +34,12 @@ test("accepts a complete compatible agent version without coercion", () => {
   assert.deepEqual(parseAgentVersion(validVersion), validVersion);
 });
 
+test("accepts optional and future string capabilities without changing required capabilities", () => {
+  const version = { ...validVersion, capabilities: [...validVersion.capabilities, "project-session-discovery", "future-feature"] };
+  assert.deepEqual(parseAgentVersion(version), version);
+  assert.equal(REQUIRED_CAPABILITIES.includes("project-session-discovery"), false);
+});
+
 test("rejects malformed and protocol-incompatible agent versions", () => {
   for (const value of [
     null,

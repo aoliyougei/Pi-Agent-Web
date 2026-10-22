@@ -7,6 +7,8 @@
 // Call sites previously repeated the same 5-line fetch block 13× in
 // hooks/useAgentSession.ts. This helper collapses that down to one line.
 
+import { sessionFetch as fetch } from "./session-scope";
+
 export class AgentCommandError extends Error {
   constructor(
     message: string,

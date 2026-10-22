@@ -10,7 +10,7 @@ COPY . .
 RUN npm --workspace @aoliyougei/pi-agent-contract run build && npm run build
 
 FROM registry.aoliyougei.com/library/node:22-alpine AS runtime
-ARG PROJECT_VERSION=0.2.3
+ARG PROJECT_VERSION=0.2.4
 ARG WEB_VERSION=0.8.11
 ARG CONTRACT_VERSION=0.1.0
 LABEL io.pi-agent-web.version="$PROJECT_VERSION" \

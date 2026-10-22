@@ -1,5 +1,3 @@
-import { REQUIRED_CAPABILITIES, type AgentCapability } from "./capabilities.js";
-
 export const PROTOCOL_VERSION = 1 as const;
 
 export interface AgentVersion {
@@ -7,7 +5,7 @@ export interface AgentVersion {
   serverVersion: string;
   piVersion: string;
   piRevision: string;
-  capabilities: AgentCapability[];
+  capabilities: string[];
 }
 
 export function parseAgentVersion(value: unknown): AgentVersion {
@@ -19,7 +17,7 @@ export function parseAgentVersion(value: unknown): AgentVersion {
     || typeof candidate.piVersion !== "string"
     || typeof candidate.piRevision !== "string"
     || !Array.isArray(candidate.capabilities)
-    || !candidate.capabilities.every((item) => typeof item === "string" && REQUIRED_CAPABILITIES.includes(item as AgentCapability))
+    || !candidate.capabilities.every((item) => typeof item === "string")
   ) {
     throw new Error("Invalid agent version");
   }
@@ -28,6 +26,6 @@ export function parseAgentVersion(value: unknown): AgentVersion {
     serverVersion: candidate.serverVersion,
     piVersion: candidate.piVersion,
     piRevision: candidate.piRevision,
-    capabilities: [...candidate.capabilities] as AgentCapability[],
+    capabilities: [...candidate.capabilities] as string[],
   };
 }

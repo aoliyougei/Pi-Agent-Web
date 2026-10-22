@@ -237,6 +237,8 @@ export const enLocale: LocalePlugin = {
     "sidebar.changedFiles": "{count} changed files",
     "sidebar.loading": "Loading...",
     "sidebar.noSessions": "No sessions found",
+    "sidebar.projectSessionsUnsupported": "This RPC supports global sessions only; project session discovery is unavailable.",
+    "sidebar.selectSessionDirectory": "Session not found. Select its project directory to look for project sessions.",
     "sidebar.agentRunning": "Agent running…",
     "sidebar.newActivity": "New activity",
     "sidebar.newSessionActivity": "New session activity",

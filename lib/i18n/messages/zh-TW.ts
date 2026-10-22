@@ -237,6 +237,8 @@ export const zhTWLocale: LocalePlugin = {
     "sidebar.changedFiles": "{count} 個已變更檔案",
     "sidebar.loading": "載入中...",
     "sidebar.noSessions": "找不到工作階段",
+    "sidebar.projectSessionsUnsupported": "此 RPC 僅支援全域工作階段，尚不支援專案工作階段探索。",
+    "sidebar.selectSessionDirectory": "找不到工作階段，請選擇其所屬的專案目錄以尋找專案工作階段。",
     "sidebar.agentRunning": "Agent 執行中…",
     "sidebar.newActivity": "有新活動",
     "sidebar.newSessionActivity": "工作階段有新活動",

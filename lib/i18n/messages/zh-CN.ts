@@ -237,6 +237,8 @@ export const zhCNLocale: LocalePlugin = {
     "sidebar.changedFiles": "{count} 个变更文件",
     "sidebar.loading": "加载中...",
     "sidebar.noSessions": "未找到会话",
+    "sidebar.projectSessionsUnsupported": "此 RPC 仅支持全局会话，尚不支持项目会话发现。",
+    "sidebar.selectSessionDirectory": "未找到会话，请选择它所属的项目目录以查找项目会话。",
     "sidebar.agentRunning": "Agent 运行中…",
     "sidebar.newActivity": "有新活动",
     "sidebar.newSessionActivity": "会话有新活动",

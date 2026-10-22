@@ -1,5 +1,7 @@
 "use client";
 
+import { sessionFetch as fetch, sessionScope, sessionUrl } from "@/lib/session-scope";
+
 import { useEffect, useState, useRef, useCallback, useMemo, type CSSProperties, type MouseEvent } from "react";
 import {
   Prism as SyntaxHighlighter,
@@ -217,7 +219,7 @@ function getFileApiUrl(
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined) searchParams.set(key, String(value));
   }
-  return `/api/files/${encoded}?${searchParams.toString()}`;
+  return sessionUrl(`/api/files/${encoded}?${searchParams.toString()}`);
 }
 
 function DownloadLink({ filePath, sourceSessionId }: { filePath: string; sourceSessionId?: string | null }) {
@@ -920,7 +922,26 @@ function DocumentViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }:
   );
 }
 
-export function FileViewer({
+export function FileViewer(props: Props) {
+  const [prepared, setPrepared] = useState<string | null | undefined>(undefined);
+  const [scopeError, setScopeError] = useState<string | null>(null);
+  const id = props.sourceSessionId ?? null;
+  useEffect(() => {
+    let cancelled = false;
+    setScopeError(null);
+    void (id ? sessionScope.prepare(id) : Promise.resolve()).then(() => {
+      if (!cancelled) setPrepared(id);
+    }).catch((error) => {
+      if (!cancelled) setScopeError(error instanceof Error ? error.message : String(error));
+    });
+    return () => { cancelled = true; };
+  }, [id]);
+  if (scopeError) return <div role="alert">{scopeError}</div>;
+  if (id && prepared !== id) return null;
+  return <FileViewerContent {...props} />;
+}
+
+function FileViewerContent({
   filePath,
   cwd,
   sourceSessionId,
