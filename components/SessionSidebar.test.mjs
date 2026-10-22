@@ -12,6 +12,21 @@ test("only Shift+click bypasses session deletion confirmation", () => {
   );
 });
 
+test("failed deletion does not notify success and always clears the busy state", async () => {
+  const body = sessionItemSource.match(/const performDelete = useCallback\(async \(\) => \{([\s\S]*?)\n  \}, \[/)[1];
+  const run = new Function("session", "fetch", "onDeleted", "setConfirmDelete", "setDeleting", "setDeleteError", `return (async () => {${body}})()`);
+  for (const response of [Response.json({ error: "Session locked" }, { status: 409 }), new Response("Bad Gateway", { status: 502 }), new Error("Network offline")]) {
+    const busy = [], errors = [], deleted = [];
+    await run({ id: "test" }, async () => { if (response instanceof Error) throw response; return response; }, id => deleted.push(id), () => {}, value => busy.push(value), value => errors.push(value));
+    assert.deepEqual(deleted, []);
+    assert.equal(busy.at(-1), false);
+    assert.ok(errors.at(-1));
+  }
+  const deleted = [];
+  await run({ id: "test" }, async () => Response.json({ ok: true }), id => deleted.push(id), () => {}, () => {}, () => {});
+  assert.deepEqual(deleted, ["test"]);
+});
+
 test("does not register row-level session deletion shortcuts", () => {
   assert.doesNotMatch(sessionItemSource, /const handleKeyDown/);
   assert.doesNotMatch(sessionItemSource, /onKeyDown=\{handleKeyDown\}/);

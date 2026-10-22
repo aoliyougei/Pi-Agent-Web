@@ -1980,6 +1980,7 @@ function SessionItem({
   const [renameValue, setRenameValue] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Select the whole name once the rename input is mounted (startRename's
@@ -2028,10 +2029,17 @@ function SessionItem({
     if (session.transient) return;
     setConfirmDelete(false);
     setDeleting(true);
+    setDeleteError(null);
     try {
-      await fetch(`/api/sessions/${encodeURIComponent(session.id)}`, { method: "DELETE" });
+      const response = await fetch(`/api/sessions/${encodeURIComponent(session.id)}`, { method: "DELETE" });
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(typeof data?.error === "string" ? data.error : `HTTP ${response.status}`);
+      }
       onDeleted?.(session.id);
-    } catch {
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : String(error));
+    } finally {
       setDeleting(false);
     }
   }, [session.id, session.transient, onDeleted]);
@@ -2191,6 +2199,7 @@ function SessionItem({
                 {title}
               </span>
             </div>
+            {deleteError && <div role="alert" title={deleteError} style={{ color: "#ef4444", fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{deleteError}</div>}
             <div style={{ marginTop: 2, display: "flex", alignItems: "center", gap: 8, color: "var(--text-dim)", fontSize: 11, minWidth: 0 }}>
               {isRunning ? (
                 <RunningSessionIndicator />

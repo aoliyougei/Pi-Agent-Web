@@ -73,9 +73,6 @@ export async function readJsonBody(request: Request): Promise<ArrayBuffer | null
 export async function proxyJson(request: Request, path: string, send: AgentFetch): Promise<Response> {
   const hasBody = request.method !== "GET" && request.method !== "HEAD" && request.body !== null;
   if (!hasBody) return proxyAgentRequest(request, path, send);
-  if (request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase() !== "application/json") {
-    return proxyError(415, "Content-Type must be application/json", "invalid_request");
-  }
   const length = Number(request.headers.get("content-length"));
   if (Number.isFinite(length) && length > MAX_JSON_BYTES) {
     return proxyError(413, "Request body too large", "request_too_large");
@@ -89,5 +86,12 @@ export async function proxyJson(request: Request, path: string, send: AgentFetch
       : proxyError(400, "Invalid request body", "invalid_request");
   }
   if (body === null) return proxyError(413, "Request body too large", "request_too_large");
-  return proxyAgentRequest(new Request(request, { body }), path, send);
+  // Next.js can expose a non-null stream even when the request contains zero bytes.
+  if (body.byteLength > 0 && request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase() !== "application/json") {
+    return proxyError(415, "Content-Type must be application/json", "invalid_request");
+  }
+  return proxyAgentRequest(new Request(request.url, {
+    method: request.method, headers: request.headers, signal: request.signal,
+    body: body.byteLength ? body : null,
+  }), path, send);
 }
