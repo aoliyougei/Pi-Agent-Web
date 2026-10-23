@@ -755,6 +755,20 @@ pre, code {
   transition: background-color 0.12s, color 0.12s;
 }
 
+/* Keep removal discoverable on touch devices and reserve its layout space. */
+@media (hover: hover) and (pointer: fine) {
+  .recent-directory-remove {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .recent-directory-row:hover .recent-directory-remove,
+  .recent-directory-row:focus-within .recent-directory-remove {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 .image-preview-close:hover {
   background: var(--bg-hover);
   color: var(--text);

@@ -1285,7 +1285,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               )}
               <div style={{ maxHeight: "min(50vh, 380px)", overflowY: "auto" }}>
                 {visibleProjects.map((project) => (
-                  <div key={project.key} style={{ display: "flex", alignItems: "center", borderBottom: "1px solid var(--border)" }}>
+                  <div key={project.key} className="recent-directory-row" style={{ display: "flex", alignItems: "center", borderBottom: "1px solid var(--border)" }}>
                   <button
                     onClick={() => {
                       const session = workspaceSession(project.key);
@@ -1335,6 +1335,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                   {workspaceKind(project.key) === "local" && (
                     <button
                       type="button"
+                      className="recent-directory-remove"
                       title={t("sidebar.removeRecentDirectory", { path: project.root })}
                       aria-label={t("sidebar.removeRecentDirectory", { path: project.root })}
                       onClick={(event) => { event.stopPropagation(); handleRemoveRecentDirectory(project.root); }}

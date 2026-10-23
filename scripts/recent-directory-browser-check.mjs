@@ -27,16 +27,30 @@ try{
  // Select the remembered project before exercising removal of the current directory.
  await selector.click();await page.locator(`button[title="${cwd}"]`).click();await page.getByText('Preserved local session',{exact:true}).waitFor();
  await page.getByRole('button',{name:cwd,exact:true}).click();
- await page.getByRole('button',{name:`Remove recent directory: ${cwd} (does not delete files or sessions)`,exact:true}).click();
+ const remove=page.getByRole('button',{name:`Remove recent directory: ${cwd} (does not delete files or sessions)`,exact:true});
+ await page.mouse.move(800,600);
+ assert.equal(await remove.evaluate(el=>getComputedStyle(el).opacity),'0');
+ const rowButton=page.locator(`.recent-directory-row button[title="${cwd}"]`);
+ await page.waitForTimeout(300); // Let the dropdown's opening animation settle before measuring.
+ const width=await rowButton.evaluate(el=>el.getBoundingClientRect().width);
+ await rowButton.hover();
+ assert.equal(await remove.evaluate(el=>getComputedStyle(el).opacity),'1');
+ assert.equal(await rowButton.evaluate(el=>el.getBoundingClientRect().width),width);
+ await page.mouse.move(800,600);await remove.focus();
+ assert.equal(await remove.evaluate(el=>getComputedStyle(el).opacity),'1');
+ await remove.click();
  await page.waitForTimeout(400);
  assert.equal(await page.getByText('Preserved local session',{exact:true}).count(),0);
  let stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('pi-web:local-workspaces-v1')));assert.deepEqual(stored,[other]);
  assert.equal(await page.evaluate(()=>localStorage.getItem('pi-web:last-custom-cwd:default')),null);
  assert.equal(await page.locator(`button[title="${cwd}"]`).count(),0);
  await page.reload();await page.waitForTimeout(700);await selector.click();assert.equal(await page.locator(`button[title="${cwd}"]`).count(),0);assert.equal(await page.locator(`button[title="${other}"]`).count(),1);
+ await page.locator(`.recent-directory-row button[title="${other}"]`).hover();
  await page.getByRole('button',{name:`Remove recent directory: ${other} (does not delete files or sessions)`,exact:true}).click();
  assert.equal(await page.locator(`button[title="${other}"]`).count(),0);
  await page.getByText('Custom path',{exact:false}).click();await page.getByRole('dialog').waitFor();await page.locator('#directory-path').fill(cwd);await page.getByRole('button',{name:'Go',exact:true}).click();await page.getByRole('button',{name:'Select this folder',exact:true}).click();
  await page.getByText('Preserved local session',{exact:true}).waitFor();stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('pi-web:local-workspaces-v1')));assert.ok(stored.includes(cwd));assert.deepEqual(mutations,[]);
- console.log('PASS current directory forgotten, global/unselected recovery, refresh persistence, siblings retained, manual re-add discovers original session, no DELETE requests');await context.close();
+ const touch=await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}});const touchPage=await touch.newPage();await touchPage.goto(base);
+ const touchOpacity=await touchPage.evaluate(()=>{const row=document.createElement('div');row.className='recent-directory-row';const button=document.createElement('button');button.className='recent-directory-remove';row.append(button);document.body.append(row);return getComputedStyle(button).opacity;});assert.equal(touchOpacity,'1');await touch.close();
+ console.log('PASS hover/focus visibility, stable layout, touch visibility; current directory forgotten, global/unselected recovery, refresh persistence, siblings retained, manual re-add discovers original session, no DELETE requests');await context.close();
 }finally{await browser.close();}
