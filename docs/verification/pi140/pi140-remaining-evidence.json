@@ -1,0 +1,1191 @@
+{
+  "fixture": {
+    "root": "/tmp/pi140-joint-dgdMfk",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project",
+    "fixtures": {
+      "default": {
+        "id": "01a166c3-ff32-73c0-b1b4-7818f440afa4",
+        "file": "/tmp/pi140-joint-dgdMfk/project/.pi/sessions/2026-10-23T03-18-03-315Z_01a166c3-ff32-73c0-b1b4-7818f440afa4.jsonl"
+      },
+      "explicit": {
+        "id": "01a166c3-ff34-73c0-b1b4-781a2c17542e",
+        "file": "/tmp/pi140-joint-dgdMfk/project/.pi/sessions/2026-10-23T03-18-03-317Z_01a166c3-ff34-73c0-b1b4-781a2c17542e.jsonl"
+      },
+      "none": {
+        "id": "01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+        "file": "/tmp/pi140-joint-dgdMfk/project/.pi/sessions/2026-10-23T03-18-03-317Z_01a166c3-ff35-73c0-b1b4-781c66ca2dfd.jsonl"
+      },
+      "costs": {
+        "id": "01a166c3-ff36-73c0-b1b4-781efec083f3",
+        "file": "/tmp/pi140-joint-dgdMfk/project/.pi/sessions/2026-10-23T03-18-03-318Z_01a166c3-ff36-73c0-b1b4-781efec083f3.jsonl"
+      },
+      "global": {
+        "id": "01a166c3-ff36-73c0-b1b4-78216ba83b5c",
+        "file": "/tmp/pi140-joint-dgdMfk/agent/sessions/global-fixture/2026-10-23T03-18-03-318Z_01a166c3-ff36-73c0-b1b4-78216ba83b5c.jsonl"
+      }
+    }
+  },
+  "events": [
+    {
+      "at": 1792725721477,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/version"
+    },
+    {
+      "at": 1792725721478,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/running"
+    },
+    {
+      "at": 1792725721478,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/home"
+    },
+    {
+      "at": 1792725721481,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent-backends"
+    },
+    {
+      "at": 1792725721516,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725721525,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725721605,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/worktrees"
+    },
+    {
+      "at": 1792725721609,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/files/tmp/pi140-joint-dgdMfk/project"
+    },
+    {
+      "at": 1792725721609,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/git/status"
+    },
+    {
+      "at": 1792725721609,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/models"
+    },
+    {
+      "at": 1792725721609,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/project-trust"
+    },
+    {
+      "at": 1792725721609,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725721672,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725721673,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment"
+    },
+    {
+      "at": 1792725721673,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment"
+    },
+    {
+      "at": 1792725721673,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e"
+    },
+    {
+      "at": 1792725721737,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725721815,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/state"
+    },
+    {
+      "at": 1792725721845,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725721876,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+      "type": "get_tools"
+    },
+    {
+      "at": 1792725722020,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725722049,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e/events"
+    },
+    {
+      "at": 1792725722072,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725722110,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+      "type": "prompt"
+    },
+    {
+      "at": 1792725723418,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725723428,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e/events"
+    },
+    {
+      "at": 1792725723483,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "scenario": "explicit",
+      "check": "active reconnect received reply and tools unchanged",
+      "tools": [
+        "new_tool",
+        "read"
+      ]
+    },
+    {
+      "at": 1792725723517,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/worktrees"
+    },
+    {
+      "at": 1792725723519,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/files/tmp/pi140-joint-dgdMfk/project"
+    },
+    {
+      "at": 1792725723521,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/git/status"
+    },
+    {
+      "at": 1792725724461,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/version"
+    },
+    {
+      "at": 1792725724461,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/running"
+    },
+    {
+      "at": 1792725724462,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/home"
+    },
+    {
+      "at": 1792725724463,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent-backends"
+    },
+    {
+      "at": 1792725724491,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725724505,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725724603,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/worktrees"
+    },
+    {
+      "at": 1792725724604,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/files/tmp/pi140-joint-dgdMfk/project"
+    },
+    {
+      "at": 1792725724605,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/git/status"
+    },
+    {
+      "at": 1792725724612,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/models"
+    },
+    {
+      "at": 1792725724612,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/project-trust"
+    },
+    {
+      "at": 1792725724613,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725724662,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725724662,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment"
+    },
+    {
+      "at": 1792725724662,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment"
+    },
+    {
+      "at": 1792725724662,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd"
+    },
+    {
+      "at": 1792725724735,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725724799,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/state"
+    },
+    {
+      "at": 1792725724822,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725724850,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+      "type": "get_tools"
+    },
+    {
+      "at": 1792725724910,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725724946,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/events"
+    },
+    {
+      "at": 1792725724965,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725724983,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+      "type": "prompt"
+    },
+    {
+      "at": 1792725726089,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725726100,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/events"
+    },
+    {
+      "at": 1792725726140,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725726176,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/worktrees"
+    },
+    {
+      "at": 1792725726177,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/files/tmp/pi140-joint-dgdMfk/project"
+    },
+    {
+      "at": 1792725726190,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/git/status"
+    },
+    {
+      "at": 1792725726203,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725726203,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd"
+    },
+    {
+      "at": 1792725726203,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd"
+    },
+    {
+      "at": 1792725726203,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd"
+    },
+    {
+      "at": 1792725726203,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd"
+    },
+    {
+      "at": 1792725726203,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment"
+    },
+    {
+      "scenario": "none",
+      "check": "active reconnect received reply and tools unchanged",
+      "tools": []
+    },
+    {
+      "at": 1792725727184,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/version"
+    },
+    {
+      "at": 1792725727184,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/running"
+    },
+    {
+      "at": 1792725727184,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/home"
+    },
+    {
+      "at": 1792725727184,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent-backends"
+    },
+    {
+      "at": 1792725727204,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725727220,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725727304,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/worktrees"
+    },
+    {
+      "at": 1792725727308,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/files/tmp/pi140-joint-dgdMfk/project"
+    },
+    {
+      "at": 1792725727308,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/git/status"
+    },
+    {
+      "at": 1792725727308,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/models"
+    },
+    {
+      "at": 1792725727309,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/project-trust"
+    },
+    {
+      "at": 1792725727310,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725727346,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725727346,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment"
+    },
+    {
+      "at": 1792725727346,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment"
+    },
+    {
+      "at": 1792725727346,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd"
+    },
+    {
+      "at": 1792725727383,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725727457,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/state"
+    },
+    {
+      "at": 1792725727494,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725727536,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+      "type": "get_tools"
+    },
+    {
+      "at": 1792725727608,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/version"
+    },
+    {
+      "at": 1792725727610,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/models"
+    },
+    {
+      "at": 1792725727611,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725727645,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725727710,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/new",
+      "type": "ensure_session",
+      "toolNames": []
+    },
+    {
+      "at": 1792725727763,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725727777,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/01a166c7-b9e5-774b-80b5-3be431ea56df",
+      "type": "get_state"
+    },
+    {
+      "at": 1792725727777,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/01a166c7-b9e5-774b-80b5-3be431ea56df",
+      "type": "get_tools"
+    },
+    {
+      "check": "new composer preference",
+      "preference": "none",
+      "id": "01a166c7-b9e5-774b-80b5-3be431ea56df",
+      "tools": []
+    },
+    {
+      "at": 1792725728715,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/version"
+    },
+    {
+      "at": 1792725728735,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/running"
+    },
+    {
+      "at": 1792725728735,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/home"
+    },
+    {
+      "at": 1792725728735,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent-backends"
+    },
+    {
+      "at": 1792725728747,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725728753,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725728819,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/worktrees"
+    },
+    {
+      "at": 1792725728820,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/files/tmp/pi140-joint-dgdMfk/project"
+    },
+    {
+      "at": 1792725728822,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/git/status"
+    },
+    {
+      "at": 1792725728823,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/models"
+    },
+    {
+      "at": 1792725728823,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/project-trust"
+    },
+    {
+      "at": 1792725728823,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725728864,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725728864,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment"
+    },
+    {
+      "at": 1792725728864,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment"
+    },
+    {
+      "at": 1792725728864,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd"
+    },
+    {
+      "at": 1792725728908,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725728973,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/state"
+    },
+    {
+      "at": 1792725729008,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725729029,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+      "type": "get_tools"
+    },
+    {
+      "at": 1792725729115,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/agent/version"
+    },
+    {
+      "at": 1792725729116,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/models"
+    },
+    {
+      "at": 1792725729116,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725729144,
+      "scenario": "none",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725729209,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/new",
+      "type": "ensure_session",
+      "toolNames": [
+        "read",
+        "bash",
+        "edit",
+        "write"
+      ]
+    },
+    {
+      "at": 1792725729292,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725729320,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/01a166c7-bfbc-774b-80b5-3be6a1422afc",
+      "type": "get_state"
+    },
+    {
+      "at": 1792725729320,
+      "scenario": "none",
+      "method": "POST",
+      "url": "/api/agent/01a166c7-bfbc-774b-80b5-3be6a1422afc",
+      "type": "get_tools"
+    },
+    {
+      "check": "new composer preference",
+      "preference": "default",
+      "id": "01a166c7-bfbc-774b-80b5-3be6a1422afc",
+      "tools": [
+        "bash",
+        "edit",
+        "new_tool",
+        "read",
+        "removed_tool",
+        "write"
+      ]
+    },
+    {
+      "at": 1792725730281,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/version"
+    },
+    {
+      "at": 1792725730282,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/running"
+    },
+    {
+      "at": 1792725730282,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/home"
+    },
+    {
+      "at": 1792725730285,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent-backends"
+    },
+    {
+      "at": 1792725730314,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725730325,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725730394,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/worktrees"
+    },
+    {
+      "at": 1792725730395,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/files/tmp/pi140-joint-dgdMfk/project"
+    },
+    {
+      "at": 1792725730399,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/git/status"
+    },
+    {
+      "at": 1792725730399,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/models"
+    },
+    {
+      "at": 1792725730399,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/project-trust"
+    },
+    {
+      "at": 1792725730399,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725730438,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725730438,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment"
+    },
+    {
+      "at": 1792725730444,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment"
+    },
+    {
+      "at": 1792725730444,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e"
+    },
+    {
+      "at": 1792725730490,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725730580,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/state"
+    },
+    {
+      "at": 1792725730607,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725730637,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+      "type": "get_tools"
+    },
+    {
+      "at": 1792725730795,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725730815,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+      "type": "compact"
+    },
+    {
+      "check": "before refresh",
+      "isCompacting": true,
+      "gate": {
+        "gated": true,
+        "waiting": 1,
+        "modelRequests": 6
+      }
+    },
+    {
+      "at": 1792725731344,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/version"
+    },
+    {
+      "at": 1792725731345,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/running"
+    },
+    {
+      "at": 1792725731345,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/home"
+    },
+    {
+      "at": 1792725731345,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent-backends"
+    },
+    {
+      "at": 1792725731367,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725731380,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725731432,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/worktrees"
+    },
+    {
+      "at": 1792725731434,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/files/tmp/pi140-joint-dgdMfk/project"
+    },
+    {
+      "at": 1792725731435,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/git/status"
+    },
+    {
+      "at": 1792725731437,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/models"
+    },
+    {
+      "at": 1792725731438,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/project-trust"
+    },
+    {
+      "at": 1792725731438,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725731489,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725731489,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment"
+    },
+    {
+      "at": 1792725731489,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment"
+    },
+    {
+      "at": 1792725731489,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e"
+    },
+    {
+      "at": 1792725731490,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e/events"
+    },
+    {
+      "at": 1792725731531,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725731618,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/state"
+    },
+    {
+      "at": 1792725731667,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725731698,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+      "type": "get_tools"
+    },
+    {
+      "at": 1792725731740,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725731769,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e"
+    },
+    {
+      "check": "after compaction refresh",
+      "observed": [
+        "connected",
+        "compaction_end"
+      ],
+      "compactionsBefore": 0,
+      "compactionsAfter": 1
+    },
+    {
+      "at": 1792725731900,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725731927,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+      "type": "prompt"
+    },
+    {
+      "at": 1792725731961,
+      "scenario": "explicit",
+      "method": "POST",
+      "url": "/api/cwd/validate"
+    },
+    {
+      "at": 1792725732006,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/worktrees"
+    },
+    {
+      "at": 1792725732006,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/files/tmp/pi140-joint-dgdMfk/project"
+    },
+    {
+      "at": 1792725732007,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/git/status"
+    },
+    {
+      "at": 1792725732039,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions"
+    },
+    {
+      "at": 1792725732048,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e"
+    },
+    {
+      "at": 1792725732048,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e"
+    },
+    {
+      "at": 1792725732048,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e"
+    },
+    {
+      "at": 1792725732048,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e"
+    },
+    {
+      "at": 1792725732048,
+      "scenario": "explicit",
+      "method": "GET",
+      "url": "/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment"
+    }
+  ],
+  "version": {
+    "protocolVersion": 1,
+    "serverVersion": "0.3.0",
+    "piVersion": "1.4.0",
+    "piRevision": "4a080252f06caf63a525d7873c5d94d3c23887e0",
+    "capabilities": [
+      "extension-ui",
+      "custom-ui",
+      "remote-files",
+      "subagents",
+      "session-locks",
+      "project-session-discovery"
+    ]
+  }
+}

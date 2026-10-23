@@ -389,7 +389,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   const existingSessionId = session?.id;
 
   useLayoutEffect(() => {
-    if (!existingSessionId && (!isNew || sessionIdRef.current)) return;
+    if (existingSessionId || !isNew || sessionIdRef.current) return;
     setToolPresetState(getPreferredToolPreset());
   }, [existingSessionId, isNew, setToolPresetState]);
 
@@ -488,7 +488,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       setToolPresetState(d.toolNames !== undefined ? getPresetFromToolNames(d.toolNames) : "default");
       setCurrentModelOverride((current) => modelSwitchPendingRef.current ? current : null);
       setError(null);
-      if (d.context.thinkingLevel && d.context.thinkingLevel !== "off") {
+      if (d.context.thinkingLevel) {
         setThinkingLevel(d.context.thinkingLevel as ThinkingLevelOption);
       }
 

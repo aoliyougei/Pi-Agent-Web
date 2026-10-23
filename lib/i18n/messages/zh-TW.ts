@@ -506,6 +506,7 @@ export const zhTWLocale: LocalePlugin = {
     "models.apiOverride": "API 覆寫",
     "models.headers": "Headers",
     "models.headersHelp": "加入此模型的請求，並覆寫 Provider 的同名 Header。",
+    "models.kimiV1Hint": "Kimi 自訂 Base URL 需要包含 /v1。請核對服務要求的位址；此設定不會被自動修改。",
     "models.compatibility": "相容性",
     "models.deepSeekThinkingCompat": "DeepSeek 思考相容性",
     "models.developerRole": "使用 developer role 傳遞系統提示詞",

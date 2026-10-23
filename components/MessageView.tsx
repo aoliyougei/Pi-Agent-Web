@@ -1032,6 +1032,12 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
         )}
       </div>
 
+      {block.argumentsError && (
+        <div role="alert" style={{ padding: "6px 10px", color: "#f87171", whiteSpace: "pre-wrap", overflowWrap: "anywhere", fontSize: 12 }}>
+          {block.argumentsError}
+        </div>
+      )}
+
       {/* ── Expanded: input args ── */}
       {expanded && (isStreamingInput || !isEditTool) && (
         <pre
@@ -1698,7 +1704,7 @@ function formatUsage(usage: {
   if (usage.output) parts.push(`${usage.output.toLocaleString()} out`);
   if (usage.cacheRead) parts.push(`${usage.cacheRead.toLocaleString()} cache R`);
   if (usage.cacheWrite) parts.push(`${usage.cacheWrite.toLocaleString()} cache W`);
-  if (usage.cost?.total) parts.push(`$${usage.cost.total.toFixed(4)}`);
+  if (Number.isFinite(usage.cost?.total)) parts.push(`$${usage.cost.total.toFixed(4)}`);
   return parts.join(" · ");
 }
 

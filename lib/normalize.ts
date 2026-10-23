@@ -34,6 +34,7 @@ function normalizeToolCallBlock(
         ? block.arguments as Record<string, unknown>
         : {}),
   };
+  if (typeof block.argumentsError === "string") normalized.argumentsError = block.argumentsError;
   const rawInput = options.includeStreamingRawInput ? streamingRawInput(block) : undefined;
   return rawInput === undefined ? normalized : { ...normalized, rawInput };
 }

@@ -37,6 +37,14 @@ test("ignores malformed auth provider responses", () => {
   );
 });
 
+test("Kimi Base URL advice is wired beside the editor without rewriting its value", () => {
+  const editor = source.slice(source.indexOf('<Field label="Base URL">'), source.indexOf('<Field label="API Key">'));
+  assert.match(editor, /needsKimiV1Hint\(editingName, provider.baseUrl\)/);
+  assert.match(editor, /t\("models.kimiV1Hint"\)/);
+  assert.match(editor, /onChange=\{\(v\) => set\("baseUrl", v \|\| undefined\)\}/);
+  assert.doesNotMatch(editor, /append|replace|\/v1`/);
+});
+
 test("custom model config exposes provider-level request headers", () => {
   const providerDetail = source.slice(
     source.indexOf("function ProviderDetail"),

@@ -43,6 +43,7 @@ export interface ToolCallContent {
   toolCallId: string;
   toolName: string;
   input: Record<string, unknown>;
+  argumentsError?: string;
   /** Client-only buffer for streamed tool input. Never persisted to session files. */
   rawInput?: string;
 }
@@ -66,6 +67,7 @@ export interface AgentUsage {
     cacheRead: number;
     cacheWrite: number;
     total: number;
+    totalFromProvider?: boolean;
   };
 }
 

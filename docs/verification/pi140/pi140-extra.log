@@ -1,0 +1,3 @@
+PASS actual auto compaction persisted + idle state
+PASS explicit UI-selected Chat only and original Chat only survive process restart
+PASS bounded replay overflow: RPC 409, existing Web EventSource control translation resync_required

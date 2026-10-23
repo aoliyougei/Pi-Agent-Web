@@ -506,6 +506,7 @@ export const enLocale: LocalePlugin = {
     "models.apiOverride": "API override",
     "models.headers": "Headers",
     "models.headersHelp": "Added to this model's requests and overrides provider headers.",
+    "models.kimiV1Hint": "Kimi custom Base URLs must include /v1. Check the address required by your service; this setting is not changed automatically.",
     "models.compatibility": "Compatibility",
     "models.deepSeekThinkingCompat": "DeepSeek thinking compatibility",
     "models.developerRole": "Use the developer role for the system prompt",

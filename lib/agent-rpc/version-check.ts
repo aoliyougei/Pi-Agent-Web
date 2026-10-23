@@ -3,7 +3,7 @@ import { REQUIRED_CAPABILITIES, parseAgentVersion } from "@aoliyougei/pi-agent-c
 export function checkAgentCompatibility(value: unknown) {
   try {
     const version = parseAgentVersion(value);
-    if (!["0.84.4", "1.2.0"].includes(version.piVersion) || !REQUIRED_CAPABILITIES.every((capability) => version.capabilities.includes(capability))) {
+    if (!["0.84.4", "1.2.0", "1.4.0"].includes(version.piVersion) || !REQUIRED_CAPABILITIES.every((capability) => version.capabilities.includes(capability))) {
       throw new Error();
     }
     return version;

@@ -1,0 +1,5 @@
+PASS active reconnect explicit ["new_tool","read"]
+PASS active reconnect none []
+PASS browser new composer creation none []
+PASS browser new composer creation default ["bash","edit","new_tool","read","removed_tool","write"]
+PASS refresh during confirmed gated compaction: state, completion event, one persisted record, continuation, no implicit mutation

@@ -26,6 +26,31 @@ function renderMessage(message, props = {}) {
   );
 }
 
+test("usage honors server total independently of estimated parts and provider-total metadata", () => {
+  for (const totalFromProvider of [undefined, false, true]) {
+    for (const total of [0, 0.1234]) {
+      const html = renderMessage({
+        role: "assistant", provider: "test", model: "fixture", content: [{ type: "text", text: "done" }],
+        usage: { input: 100, output: 10, cacheRead: 0, cacheWrite: 0,
+          cost: { input: 1, output: 2, cacheRead: 3, cacheWrite: 4, total,
+            ...(totalFromProvider === undefined ? {} : { totalFromProvider }),
+          },
+        },
+      });
+      assert.ok(html.includes(`$${total.toFixed(4)}`));
+      assert.doesNotMatch(html, /\$10\.0000/);
+    }
+  }
+});
+
+test("malformed tool calls render their argument error safely", () => {
+  const html = renderMessage({ role: 'assistant', provider: 'test', model: 'fixture', content: [
+    { type: 'toolCall', toolCallId: 'bad', toolName: 'read', input: {}, argumentsError: 'Invalid JSON: <script>bad</script>' },
+  ] });
+  assert.match(html, /Invalid JSON:/);
+  assert.doesNotMatch(html, /<script>bad<\/script>/);
+});
+
 test("keeps streamed tool input out of collapsed markup while counting it", () => {
   const block = {
     type: "toolCall",

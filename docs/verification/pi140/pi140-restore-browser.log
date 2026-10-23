@@ -1,0 +1,12 @@
+PASS browser reconnect with conflicting full preference preserves tools: explicit
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.waitForFunction: Timeout 30000ms exceeded.
+    at /build/web/pi140-joint-restore-browser.mjs:11:132 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.2

@@ -132,7 +132,7 @@ test("fresh sessions use the preference while persisted and live sessions restor
 
   assert.match(
     preferenceSource,
-    /const existingSessionId = session\?\.id;[\s\S]*?useLayoutEffect\(\(\) => \{\s*if \(!existingSessionId && \(!isNew \|\| sessionIdRef\.current\)\) return;\s*setToolPresetState\(getPreferredToolPreset\(\)\)/,
+    /const existingSessionId = session\?\.id;[\s\S]*?useLayoutEffect\(\(\) => \{\s*if \(existingSessionId \|\| !isNew \|\| sessionIdRef\.current\) return;\s*setToolPresetState\(getPreferredToolPreset\(\)\)/,
   );
   assert.match(source, /if \(agentState\?\.running\) \{\s*loadTools\(session\.id\)/);
   assert.match(source, /d\.toolNames !== undefined \? getPresetFromToolNames\(d\.toolNames\) : "default"/);
@@ -140,6 +140,24 @@ test("fresh sessions use the preference while persisted and live sessions restor
   assert.match(changeSource, /\(sid, \{ type: "set_tools", toolNames \}\)/);
   assert.match(changeSource, /sessionIdRef\.current = activeSessionId/);
   assert.doesNotMatch(loadToolsSource, /setPreferredToolPreset/);
+});
+
+test("passive restore never sends tool mutations while an explicit user selection still does", () => {
+  const changeStart = source.indexOf('  const handleToolPresetChange = useCallback');
+  const changeEnd = source.indexOf('  const scrollUserMsgToTop', changeStart);
+  const passiveSource = source.slice(0, changeStart) + source.slice(changeEnd);
+  assert.doesNotMatch(passiveSource, /type: "set_tools"/);
+  assert.doesNotMatch(passiveSource, /handleToolPresetChange\(/);
+  assert.match(source.slice(changeStart, changeEnd), /type: "set_tools", toolNames/);
+  const restore = source.slice(source.indexOf('  const loadSession = useCallback'), source.indexOf('  const loadContext = useCallback'));
+  assert.doesNotMatch(restore, /thinkingLevel !== "off"/);
+});
+
+test("compression supports legacy and current SSE names and reconciles server state", () => {
+  assert.match(source, /case "auto_compaction_start":\s*case "compaction_start":\s*setIsCompacting\(true\)/);
+  assert.match(source, /case "auto_compaction_end":\s*case "compaction_end":\s*setIsCompacting\(false\)/);
+  assert.match(source, /setIsCompacting\(state\?\.isCompacting \?\? false\)/);
+  assert.match(source, /agentState\.state\.thinkingLevel !== undefined/);
 });
 
 test("existing-session prompts rely on the persisted tool selection", () => {

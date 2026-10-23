@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useI18n } from "@/hooks/useI18n";
+import { needsKimiV1Hint } from "@/lib/kimi-base-url";
 import type { ModelCatalogPreset, ModelCatalogRecommendation } from "@/lib/model-catalog";
 import type { DiscoveredModel } from "@/lib/model-discovery";
 import {
@@ -404,6 +405,9 @@ function ProviderDetail({ name, provider, onChange, onRename, onDelete, onAddMod
       <Field label="Base URL">
         <TextInput value={provider.baseUrl ?? ""} onChange={(v) => set("baseUrl", v || undefined)}
           placeholder="https://api.example.com/v1" mono />
+        {needsKimiV1Hint(editingName, provider.baseUrl) && (
+          <span role="note" style={{ fontSize: 11, color: "var(--text-muted)" }}>{t("models.kimiV1Hint")}</span>
+        )}
       </Field>
 
       <Field label="API Key">

@@ -506,6 +506,7 @@ export const zhCNLocale: LocalePlugin = {
     "models.apiOverride": "API 覆盖",
     "models.headers": "Headers",
     "models.headersHelp": "仅添加到该模型的请求中，并覆盖 Provider 的同名 Header。",
+    "models.kimiV1Hint": "Kimi 自定义 Base URL 需要包含 /v1。请核对服务要求的地址；此设置不会被自动修改。",
     "models.compatibility": "兼容性",
     "models.deepSeekThinkingCompat": "DeepSeek 思考兼容",
     "models.developerRole": "使用 developer role 传递系统提示词",

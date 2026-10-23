@@ -1,0 +1,7 @@
+PASS Chromium cold + refresh restore, no default tool override: default
+PASS Chromium active SSE replacement + reconciled continuation
+PASS Chromium cold + refresh restore, no default tool override: explicit
+PASS explicit UI tool change sent set_tools and took effect
+PASS Chromium cold + refresh restore, no default tool override: none
+PASS Chromium cold + refresh restore, no default tool override: costs
+PASS captured browser requests: exactly one explicit set_tools; no passive override, fixtures displayed with server totals

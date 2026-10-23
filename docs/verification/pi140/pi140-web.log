@@ -1,0 +1,10 @@
+PASS actual authenticated version via Web: {"protocolVersion":1,"serverVersion":"0.3.0","piVersion":"1.4.0","piRevision":"4a080252f06caf63a525d7873c5d94d3c23887e0","capabilities":["extension-ui","custom-ui","remote-files","subagents","session-locks","project-session-discovery"]}
+PASS cold tool restore default ["read","new_tool"]
+PASS cold tool restore explicit ["read","new_tool"]
+PASS cold tool restore none []
+PASS model list [{"id":"echo","name":"Phase 2 Echo","provider":"phase2"}]
+PASS model/thinking/prompt and ordered cursor replay
+PASS actual RPC detail cost flags and malformed diagnostic
+PASS manual compaction + completion event + continuation
+PASS real RPC process restart, cold cwd/detail/SSE before LIST, same JSONL continuation, no implicit set_tools
+FIXTURE {"root":"/tmp/pi140-joint-NLBFfi","cwd":"/tmp/pi140-joint-NLBFfi/project","fixtures":{"default":{"id":"01a16679-bcc1-7300-aa11-8077ec1ca0a1","file":"/tmp/pi140-joint-NLBFfi/project/.pi/sessions/2026-10-23T01-56-56-642Z_01a16679-bcc1-7300-aa11-8077ec1ca0a1.jsonl"},"explicit":{"id":"01a16679-bcc3-7300-aa11-80793af4f01f","file":"/tmp/pi140-joint-NLBFfi/project/.pi/sessions/2026-10-23T01-56-56-643Z_01a16679-bcc3-7300-aa11-80793af4f01f.jsonl"},"none":{"id":"01a16679-bcc4-7300-aa11-807bd642062c","file":"/tmp/pi140-joint-NLBFfi/project/.pi/sessions/2026-10-23T01-56-56-644Z_01a16679-bcc4-7300-aa11-807bd642062c.jsonl"},"costs":{"id":"01a16679-bcc5-7300-aa11-807c50bc9c70","file":"/tmp/pi140-joint-NLBFfi/project/.pi/sessions/2026-10-23T01-56-56-645Z_01a16679-bcc5-7300-aa11-807c50bc9c70.jsonl"}}}

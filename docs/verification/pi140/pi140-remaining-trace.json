@@ -1,0 +1,1098 @@
+[
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/models?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/project-trust?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/state?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "set_auto_compaction",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e/events?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "prompt",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject&start=false",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_state",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "set_model",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "set_model",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/models?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/project-trust?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/state?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "set_auto_compaction",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e/events?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "prompt",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e/events?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET",
+    "cursor": "17"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject&start=false",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/models?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/project-trust?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/state?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "set_auto_compaction",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/events?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "prompt",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/events?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET",
+    "cursor": "5"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject&start=false",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/models?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/project-trust?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/state?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/models?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/new",
+    "method": "POST",
+    "type": "ensure_session",
+    "toolNames": [],
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c7-b9e5-774b-80b5-3be431ea56df",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c7-b9e5-774b-80b5-3be431ea56df",
+    "method": "POST",
+    "type": "get_state",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c7-b9e5-774b-80b5-3be431ea56df",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/models?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/project-trust?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff35-73c0-b1b4-781c66ca2dfd/state?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/models?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/new",
+    "method": "POST",
+    "type": "ensure_session",
+    "toolNames": [
+      "read",
+      "bash",
+      "edit",
+      "write"
+    ],
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c7-bfbc-774b-80b5-3be6a1422afc",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c7-bfbc-774b-80b5-3be6a1422afc",
+    "method": "POST",
+    "type": "get_state",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff35-73c0-b1b4-781c66ca2dfd",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c7-bfbc-774b-80b5-3be6a1422afc",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/models?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/project-trust?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/state?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "prompt",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_state",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "prompt",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_state",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "prompt",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_state",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "compact",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_state",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/version",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/running",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/models?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/project-trust?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e/events?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/state?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_state",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_state",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "get_tools",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e",
+    "method": "POST",
+    "type": "prompt",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/cwd/validate",
+    "method": "POST",
+    "cwd": "/tmp/pi140-joint-dgdMfk/project"
+  },
+  {
+    "url": "/internal/v1/api/worktrees?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/files/tmp/pi140-joint-dgdMfk/project?type=list",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/git/status?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions?force=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?deferThinking=1&deferMedia=1&cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/agent/01a166c3-ff34-73c0-b1b4-781a2c17542e?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject&start=false",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  },
+  {
+    "url": "/internal/v1/api/sessions/01a166c3-ff34-73c0-b1b4-781a2c17542e/ssh-environment?cwd=%2Ftmp%2Fpi140-joint-dgdMfk%2Fproject",
+    "method": "GET"
+  }
+]
