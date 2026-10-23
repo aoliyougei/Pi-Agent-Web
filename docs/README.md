@@ -32,7 +32,7 @@
 
 ## 发布流程说明
 
-本 fork 的 Git/Docker 发布规范见 [AGENTS.md](../AGENTS.md#4-提交与发布)。[release.md](release.md) 是上游 npm 发布流程，仅作参考，不直接执行其中的发布命令。
+本 fork 的 Git/Docker 发布规范见 [AGENTS.md](../AGENTS.md#4-commits-and-releases)。[release.md](release.md) 是上游 npm 发布流程，仅作参考，不直接执行其中的发布命令。
 
 ## 索引维护
 

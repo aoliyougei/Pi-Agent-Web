@@ -1,52 +1,52 @@
-# Pi-Agent-Web 工作规范
+# Pi-Agent-Web Working Guidelines
 
-遵守全局 AGENTS.md 的执行与安全边界，本文仅补充项目工作流程。不因本文自动获得提交、推送或部署授权。
+Follow the execution and safety boundaries in the global AGENTS.md. This document adds project-specific workflows only; it does not authorize commits, pushes, or deployments.
 
-## 1. 开发与修改
+## 1. Development and Changes
 
-- 开始前检查工作区状态、当前分支、相关代码和调用方，不覆盖已有改动。
-- 先复现、定位根因，再修改。采用最小完整修复，复用现有实现，不顺带重构或新增功能。
-- 非平凡修复先补失败回归测试；变更覆盖受影响的调用方、类型、测试及文档。新增 UI 文案同步现有语言包。
-- Web 通过 RPC 操作会话。独立 RPC 仓库由其维护者负责，不擅自改代码或重建候选；如需改变协议、能力、cwd、命令或 SSE 约定，先协调。
-- 涉及 RPC 配合时，先说明问题、Web 侧证据及所需支持；候选交付须明确镜像身份、版本／能力和夹具说明。验收后回传逐项结果、证据路径及未覆盖项；发现失败先判断属于 Web、RPC 或夹具，不将推测作为 RPC 修改要求。
+- Before starting, check the working tree, current branch, relevant code, and callers. Do not overwrite existing changes.
+- Reproduce the issue and identify its root cause before editing. Make the smallest complete fix, reuse existing implementations, and avoid unrelated refactoring or features.
+- For nontrivial fixes, add a failing regression test first. Cover affected callers, types, tests, and documentation. Add new UI text to all existing locale packages.
+- Web operates on sessions through RPC. The independent RPC repository belongs to its maintainers; do not modify its code or rebuild candidates without authorization. Coordinate changes to the protocol, capabilities, cwd, commands, or SSE conventions first.
+- When RPC cooperation is needed, explain the problem, Web-side evidence, and requested support. Candidate handoffs must identify the image, versions/capabilities, and fixtures. After acceptance testing, return per-scenario results, evidence paths, and coverage gaps. Determine whether failures belong to Web, RPC, or fixtures before requesting RPC changes; do not treat speculation as a confirmed defect.
 
-## 2. 调试顺序
+## 2. Debugging Sequence
 
-1. 记录复现操作、预期/实际结果、浏览器、所选后端与会话/目录范围。
-2. 核对实际运行的 Web/RPC 版本、镜像 digest 和鉴权版本响应。`test` 标签及页面版本号不能代替运行镜像身份。
-3. 显式刷新页面，对照浏览器 Network、Web/RPC 日志及直接 HTTP 响应，确定问题属于哪一层。
-4. 在隔离数据中验证单一根因假设，再补测试、修根因；失败时保留最小复现、请求时序和实际响应，不连续尝试无依据补丁。
+1. Record reproduction steps, expected and actual behavior, browser, selected backend, and affected sessions/directories.
+2. Verify the running Web/RPC versions, image digests, and authenticated version response. A `test` tag or page version number is not a substitute for the running image's identity.
+3. Explicitly reload the page. Compare browser Network data, Web/RPC logs, and direct HTTP responses to locate the failing layer.
+4. Validate one root-cause hypothesis using isolated data, then add a test and fix the cause. On failure, preserve a minimal reproduction, request timeline, and actual responses; do not repeatedly apply unsupported patches.
 
-开发服务使用 `npm run dev`（30141），优先复用健康服务；生产构建使用独立容器，避免污染开发 `.next`。
+Use `npm run dev` (port 30141) for development and prefer reusing a healthy service. Run production builds in a separate container to avoid contaminating the development `.next` directory.
 
-## 3. 测试与验收
+## 3. Testing and Acceptance
 
-按改动影响范围选择验证，不将专项联合验收作为所有修改的前置条件。执行环境遵守全局规定。
+Choose verification based on the change's impact. Specialized joint acceptance testing is not a prerequisite for every change. Follow the global execution-environment rules.
 
-- 文档修改检查内容与 diff；代码修改先运行相关测试，必要时执行类型检查及修改文件 lint。
-- 代码集成 main 或正式发布前运行 `npm test`、`node_modules/.bin/tsc --noEmit` 和 `node_modules/.bin/eslint <changed-files>`；发布镜像另做独立生产构建。
-- UI 交互改动按需补浏览器测试；影响 RPC 交互、会话恢复或版本兼容时，追加相应真实 RPC 验收，具体用例查专题文档。
-- 单元测试、模拟事件和静态渲染可验证对应层，不据此宣称真实端到端场景通过。
-- Pi 升级保留既有版本、protocol 和 required capabilities 检查，只精确加入有验证依据的版本；真实候选联合验收通过前不发布正式兼容镜像。
-- 依赖按 package-lock 和 Dockerfile 准备，不为解决环境问题随意升级。
-- 报告实际执行的检查、结果及未覆盖项；联合验收另记录双方镜像身份和关键请求/事件。超时不算通过，环境或夹具失败与产品失败分开记录。
+- For documentation changes, review the content and diff. For code changes, run relevant tests first, adding type checks and lint for changed files as needed.
+- Before integrating code into main or making a formal release, run `npm test`, `node_modules/.bin/tsc --noEmit`, and `node_modules/.bin/eslint <changed-files>`. Release images also require a separate production build.
+- Add browser tests for UI interactions as needed. Changes affecting RPC interactions, session restoration, or version compatibility require corresponding real-RPC acceptance tests; consult the relevant topic documents for scenarios.
+- Unit tests, simulated events, and static rendering verify their respective layers. Do not use them to claim that real end-to-end scenarios passed.
+- When upgrading Pi, retain support for existing versions and preserve protocol and required-capability checks. Add only exact versions backed by verification. Do not publish a formal compatibility image before joint acceptance passes against a real candidate.
+- Prepare dependencies according to package-lock and Dockerfile. Do not arbitrarily upgrade dependencies to work around environment issues.
+- Report checks actually performed, results, and coverage gaps. For joint acceptance, also record both image identities and key requests/events. Timeouts are not passes; distinguish environment or fixture failures from product failures.
 
-## 4. 提交与发布
+## 4. Commits and Releases
 
-- 构建、推送、部署是独立授权阶段；版本标签、`test`、`latest` 按用户明确范围操作，不默认全部更新。
-- 发布前审查 diff 和现有标签，确认版本。已在 main 则直接提交，不虚构 merge；保留旧标签，不强推、不覆盖旧版本。
-- 项目版本同步 `release.json`、Dockerfile 的 `PROJECT_VERSION`、`build-image.sh` 的参数与标签；不要连带升级 upstream npm 或 contract 版本。
-- 本 fork 默认镜像仓库为 `registry.aoliyougei.com/aoliyougei/pi-agent-web`。`docs/release.md` 是上游 npm 流程，不直接照用，不运行 `npm run release`。
-- 完成回归和独立生产构建后，提交明确文件、创建 annotated Git 标签，只推送指定 main 和该标签，不用 `--tags`。
-- 从已核对的镜像 ID 打 Docker 标签，逐个推送并检查摘要。缺少凭据时报阻塞，不更换发布目标。
-- 版本更新后重建会改变 digest，区分验收候选与正式镜像，不声称新 digest 做过未执行的验收。
-- 部署可变标签时核对拉取策略及实际 Pod imageID；不要仅凭重新部署判断已升级。
-- 收尾报告 commit、Git/Docker 标签及 digest、验证结果、工作区状态和是否修改部署。
+- Building, pushing, and deploying are separately authorized stages. Update version tags, `test`, and `latest` only within the user's explicit scope; do not update all tags by default.
+- Before releasing, review the diff and existing tags and confirm the version. If already on main, commit directly rather than inventing a merge. Preserve old tags; do not force-push or overwrite old versions.
+- Keep the project version synchronized across `release.json`, Dockerfile's `PROJECT_VERSION`, and the arguments and tag in `build-image.sh`. Do not also bump the upstream npm or contract version without a separate reason.
+- This fork's default image repository is `registry.aoliyougei.com/aoliyougei/pi-agent-web`. `docs/release.md` describes the upstream npm workflow; do not follow it directly or run `npm run release`.
+- After regression checks and a separate production build, commit explicitly selected files and create an annotated Git tag. Push only the specified main branch and that tag; do not use `--tags`.
+- Create Docker tags from a verified image ID, push them individually, and inspect the returned digests. Report missing credentials as a blocker; do not switch publication targets.
+- Rebuilding after a version update changes the digest. Distinguish the acceptance candidate from the release image, and do not claim that a new digest underwent checks that were not performed on it.
+- When deploying mutable tags, verify the pull policy and actual Pod imageID. Redeployment alone does not prove an upgrade occurred.
+- At handoff, report the commit, Git/Docker tags and digests, verification results, working-tree status, and whether deployment was changed.
 
-## 5. 文档查阅与维护
+## 5. Documentation Lookup and Maintenance
 
-- 按任务需要从 `docs/README.md` 查找相关专题，不要求每次阅读全部文档。
-- 文档索引随功能新增、变更或移除同步维护，指向当前有效说明。
-- 版本验收、故障复盘和发布记录作为历史证据保留，标注适用范围，不作为当前通用规范。
-- 修改功能时同步更新受影响文档；已有文档失效时更新、归档或移除索引入口，避免重复维护互相冲突的说明。
-- 文档与当前实现冲突时先核实，不按历史记录猜测修改。
+- Use `docs/README.md` to find relevant topics as needed; reading all documentation is not required for every task.
+- Maintain the documentation index as features are added, changed, or removed, and link to currently applicable guidance.
+- Preserve version acceptance reports, incident reviews, and release records as historical evidence. State their applicable scope; do not treat them as current general policy.
+- Update affected documentation alongside feature changes. Update, archive, or remove index entries for obsolete documents to avoid maintaining conflicting explanations.
+- If documentation conflicts with the current implementation, verify the behavior first rather than guessing from historical records.

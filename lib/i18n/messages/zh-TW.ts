@@ -193,6 +193,7 @@ export const zhTWLocale: LocalePlugin = {
     "sidebar.filterProjects": "篩選專案…",
     "sidebar.noMatchingProjects": "找不到相符的專案",
     "sidebar.useDefaultDirectory": "使用預設目錄",
+    "sidebar.removeRecentDirectory": "移除最近目錄：{path}（不刪除檔案或對話）",
     "sidebar.customPath": "自訂路徑…",
     "directoryPicker.selectDirectory": "選擇目錄",
     "directoryPicker.goToParent": "前往上一層目錄",

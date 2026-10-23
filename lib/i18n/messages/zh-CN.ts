@@ -193,6 +193,7 @@ export const zhCNLocale: LocalePlugin = {
     "sidebar.filterProjects": "筛选项目…",
     "sidebar.noMatchingProjects": "没有匹配的项目",
     "sidebar.useDefaultDirectory": "使用默认目录",
+    "sidebar.removeRecentDirectory": "移除最近目录：{path}（不删除文件或会话）",
     "sidebar.customPath": "自定义路径…",
     "directoryPicker.selectDirectory": "选择目录",
     "directoryPicker.goToParent": "转到上级目录",

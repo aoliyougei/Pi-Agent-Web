@@ -909,6 +909,7 @@ export function AppShell() {
     if (!affected) return;
     invalidateWorkspaceRestore();
     activeNewSessionDraftKeyRef.current = null;
+    activeProjectKeyRef.current = null;
     setSelectedSession(null);
     setNewSessionCwd(fallbackCwd);
     setActiveCwd(fallbackCwd);

@@ -7,6 +7,12 @@
 - Arbitrary other custom session directories are not newly discoverable by this feature.
 - Running-session reporting remains global and switching directories never stops runs.
 
+## Recent directories in Web
+
+The local directory selector offers an × action to remove a recent directory from this browser's backend-scoped history. It also clears matching last-custom-path and known session-restore hints. Removing the current directory returns to an unselected workspace and reloads the global catalogue, without automatically choosing another project in that page. No RPC directory, worktree, session file, or running task is deleted or stopped.
+
+This is not a persistent hidden-project list: global session metadata may still produce the same project option. Project-only sessions become discoverable again when the user manually selects their directory. Local-history removal is browser-specific; other browsers are unchanged.
+
 ## Interface
 
 RPC advertises optional `project-session-discovery`. Required capabilities are unchanged; version parsers must permit additional string capabilities.

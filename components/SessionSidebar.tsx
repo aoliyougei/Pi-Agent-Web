@@ -7,7 +7,7 @@ import { loadExplorerOpen, saveExplorerOpen } from "@/lib/file-explorer-state";
 import { dispatchSessionRowContextMenu } from "@/lib/session-row-context-menu";
 import { skillExpansionToCommand } from "@/lib/slash-display";
 import { getProjectActivity, getRecentProjects, sessionsForProject } from "@/lib/project-groups";
-import { workspaceKeyOf } from "@/lib/workspace-memory";
+import { clearLastOpen, workspaceKeyOf } from "@/lib/workspace-memory";
 import { getSelectedBackendId } from "@/lib/agent-backend-selection";
 import { sessionFetch as fetch, sessionScope } from "@/lib/session-scope";
 import { formatRelativeTime } from "@/lib/i18n/format";
@@ -371,6 +371,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const [localWorkspaces, setLocalWorkspaces] = useState<string[]>(() => loadLocalWorkspaces());
   const [unavailableWorkspaces, setUnavailableWorkspaces] = useState<string[]>([]);
   const workspaceSelectionGeneration = useRef(0);
+  const skipAutomaticProjectSelection = useRef(false);
   const forgetWorkspace = useCallback((path: string) => {
     setLocalWorkspaces(removeLocalWorkspace(path));
     setUnavailableWorkspaces(current => [...current.filter(item => !isWorkspaceWithin(item, path)), path]);
@@ -424,7 +425,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       if (showLoading) setLoading(true);
       const params = new URLSearchParams();
       if (force) params.set("force", "1");
-      const hint = initialSessionId ? sessionScope.cwd(initialSessionId) : undefined;
+      const hint = initialSessionId && !skipAutomaticProjectSelection.current ? sessionScope.cwd(initialSessionId) : undefined;
       const directory = selectedCwd ?? (hint && !unavailableWorkspaces.some(path => isWorkspaceWithin(hint, path)) ? hint : undefined);
       if (directory) {
         const supported = await sessionScope.enabled();
@@ -744,7 +745,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
 
   // Auto-select cwd and restore session from URL on first load
   useEffect(() => {
-    if (loading || skipInitialProjectSelection) return;
+    if (loading || skipInitialProjectSelection || skipAutomaticProjectSelection.current) return;
 
     // A project deep link may only become discoverable after the user selects its cwd.
     if (initialSessionId && !restoredRef.current) {
@@ -832,6 +833,33 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       setError(cause instanceof Error ? cause.message : String(cause));
     }
   }, [forgetWorkspace]);
+
+  const handleRemoveRecentDirectory = useCallback((path: string) => {
+    workspaceSelectionGeneration.current += 1;
+    setLocalWorkspaces(removeLocalWorkspace(path));
+    for (const session of allSessions) {
+      if (isWorkspaceWithin(session.cwd, path)) {
+        sessionScope.forget(session.id);
+        clearLastOpen(workspaceKeyOf(session));
+      }
+    }
+    try {
+      if (isWorkspaceWithin(loadLastCustomCwd(), path)) {
+        window.localStorage.removeItem(`${LAST_CUSTOM_CWD_STORAGE_KEY}:${getSelectedBackendId()}`);
+        setCustomPathValue("");
+      }
+    } catch { /* storage is best-effort */ }
+    if (selectedCwd && isWorkspaceWithin(selectedCwd, path)) {
+      skipAutomaticProjectSelection.current = true;
+      restoredRef.current = true;
+      sessionListGeneration.current += 1;
+      setAllSessions([]);
+      setSelectedCwd(null);
+      setValidatedProject(null);
+      setError(null);
+      onWorkspaceRemoved?.(path, null);
+    }
+  }, [selectedCwd, allSessions, onWorkspaceRemoved]);
 
   const handleCustomPathClick = useCallback(() => {
     setCustomPathOpen(true);
@@ -1257,8 +1285,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               )}
               <div style={{ maxHeight: "min(50vh, 380px)", overflowY: "auto" }}>
                 {visibleProjects.map((project) => (
+                  <div key={project.key} style={{ display: "flex", alignItems: "center", borderBottom: "1px solid var(--border)" }}>
                   <button
-                    key={project.key}
                     onClick={() => {
                       const session = workspaceSession(project.key);
                       if (session?.workspaceKind === "ssh") {
@@ -1279,7 +1307,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                       padding: "8px 10px",
                       background: "var(--bg)",
                       border: "none",
-                      borderBottom: "1px solid var(--border)",
+                      flex: 1,
+                      minWidth: 0,
                       color: project.key === selectedProject?.key ? "var(--text)" : "var(--text-muted)",
                       cursor: "pointer",
                       textAlign: "left",
@@ -1303,6 +1332,16 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                     <PathLabel text={workspaceLabel(project.key, project.root)} style={{ flex: 1 }} />
                     {showProjectActivity(projectActivity.get(project.key), t)}
                   </button>
+                  {workspaceKind(project.key) === "local" && (
+                    <button
+                      type="button"
+                      title={t("sidebar.removeRecentDirectory", { path: project.root })}
+                      aria-label={t("sidebar.removeRecentDirectory", { path: project.root })}
+                      onClick={(event) => { event.stopPropagation(); handleRemoveRecentDirectory(project.root); }}
+                      style={{ flexShrink: 0, width: 30, minHeight: 30, border: "none", background: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 16 }}
+                    >×</button>
+                  )}
+                  </div>
                 ))}
                 {visibleProjects.length === 0 && projectFilter.trim() && (
                    <div style={{ padding: "8px 10px", fontSize: 11, color: "var(--text-dim)" }}>{t("sidebar.noMatchingProjects")}</div>
